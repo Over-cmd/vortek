@@ -84,26 +84,37 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
 #include <vulkan/vulkan.h>
 
-// Definición base de MemoryPool para satisfacer las macros vt_free / vt_alloc
+// 1. Estructuras base necesarias para el serializador y gestor de memoria
 typedef struct MemoryPool {
     void* buffer;
     size_t size;
     size_t offset;
 } MemoryPool;
 
-// Definición base del Context de Vortek
 typedef struct VortekContext {
     MemoryPool memoryPool;
 } VortekContext;
 
-// Declaración de variables globales huérfanas externas del sistema cliente/servidor
+// 2. Definición estructural del búfer circular (Anillo de comunicación de Vortek)
+typedef struct RingBuffer {
+    void* data;
+    uint32_t head;
+    uint32_t tail;
+    uint32_t size;
+} RingBuffer;
+
+// 3. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
 extern int serverFd;
 extern MemoryPool globalMemoryPool;
 extern VortekContext* context;
+extern RingBuffer* serverRing; // 🚨 FIJADO: Registrado para limpiar el error de destrucción/creación
+extern RingBuffer* clientRing; // 🚨 FIJADO: Registrado para limpiar el error de recepción de tramas
 
-// Prototipos de funciones nativas llamadas por las macros del serializador
+// 4. Prototipos de funciones nativas llamadas por las macros del serializador
 void recv_fds(int socket, int* fds, int* numFds, int* success, int count);
 void* vt_alloc(MemoryPool* pool, size_t size);
 void vt_free(MemoryPool* pool);
+int vt_send(RingBuffer* ring, uint32_t code, void* data, uint32_t size);
+int vt_recv(RingBuffer* ring, char** outputBuffer, uint32_t* outputSize, MemoryPool* pool);
 
 #endif // WINLATOR_H
