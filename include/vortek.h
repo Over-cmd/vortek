@@ -91,6 +91,45 @@
 #include "ring_buffer.h"
 #include "thread_pool.h"
 
+/* 🚨 INYECCIÓN DE COMPATIBILIDAD VULKAN STANDALONE:
+   Fuerza los tipos de datos y moldes de PC ausentes en el NDK móvil 
+   directo en el núcleo de las cabeceras para que el serializador compile limpio */
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 memoryMapPlaced;
+    VkBool32 memoryMapRangePlaced;
+    VkBool32 memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkDeviceSize minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+typedef struct VkMemoryMapPlacedInfoEXT {
+    VkStructureType sType;
+    const void* pNext;
+    void* pPlacedAddress;
+} VkMemoryMapPlacedInfoEXT;
+
+typedef struct CommandBatch {
+    char* buffer;
+    int capacity;
+    int size;
+} CommandBatch;
+
+// Firmas nativas básicas para el enlazador
+typedef void* Display;
+typedef unsigned long VisualID;
+typedef void* VkXlibSurfaceCreateInfoKHR;
+typedef void* VkAllocationCallbacks;
+
+#include "request_codes.h"
+#include "vk_object.h"
+
 typedef struct MemoryPool {
     void* data;
     int size;
