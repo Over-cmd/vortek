@@ -27,8 +27,8 @@ add_library(vulkan_wrapper SHARED
     src/descriptor_update_template.c
     src/ring_buffer.c)
 
-# 🚨 FIJADO MASTER: Forzamos al enlazador a usar el mapa de símbolos para exportar las funciones ICD obligatorias
-set_target_properties(vulkan_wrapper PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_SOURCE_DIR}/src/vulkan_wrapper.map")
+# 🚨 FIJADO MASTER: Corregida la variable a CMAKE_CURRENT_SOURCE_DIR para localizar el mapa de símbolos
+set_target_properties(vulkan_wrapper PROPERTIES LINK_FLAGS "-Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/src/vulkan_wrapper.map")
 
 # Vinculamos la librería de logs nativa de Android al nuevo target unificado
 target_link_libraries(vulkan_wrapper PRIVATE log)
