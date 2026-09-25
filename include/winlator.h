@@ -84,22 +84,20 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
 #include <vulkan/vulkan.h>
 
-// 1. Estructuras base necesarias para el serializador y gestor de memoria
-// 🚨 FIJADO: Añadido el contenedor anidado .elements exigido por la línea 206 de vortek.h
-typedef struct VortekAllocation {
-    void* handle;
-    size_t size;
-} VortekAllocation;
+// 1. Estructuras de listas genéricas reales utilizadas por Vortek
+typedef struct ArrayList {
+    void** elements;
+    int size;
+    int capacity;
+} ArrayList;
 
-typedef struct VortekAllocationList {
-    VortekAllocation* elements;
-} VortekAllocationList;
-
+// 2. Estructuras base necesarias para el serializador y gestor de memoria
+// 🚨 FIJADO: Mapeado con .data y el tipo ArrayList real para acoplar arrays.h y main.c
 typedef struct MemoryPool {
-    void* buffer;
+    void* data;
     size_t size;
     size_t offset;
-    VortekAllocationList allocationList; // 🌟 Ahora contiene .elements de forma legal
+    ArrayList allocationList;
     int allocationList_elements; 
 } MemoryPool;
 
@@ -107,7 +105,7 @@ typedef struct VortekContext {
     MemoryPool memoryPool;
 } VortekContext;
 
-// 2. Definición estructural del búfer circular (Anillo de comunicación de Vortek)
+// 3. Definición estructural del búfer circular (Anillo de comunicación de Vortek)
 typedef struct RingBuffer {
     void* data;
     uint32_t head;
@@ -132,17 +130,17 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     VkDeviceSize minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 
-// 3. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
+// 4. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
 extern int serverFd;
 extern MemoryPool globalMemoryPool;
 extern VortekContext* context;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
-/* 4. Prototipos de funciones nativas llamadas por las macros del serializador
-   🚨 FIJADO: Removidos vt_send y vt_recv para evitar colisiones estáticas con vortek.h */
+// 5. Prototipos de funciones nativas llamadas por las macros del serializador
 void recv_fds(int socket, int* fds, int* numFds, char* success, int count);
 void* vt_alloc(MemoryPool* pool, size_t size);
 void vt_free(MemoryPool* pool);
 
 #endif // WINLATOR_H
+
