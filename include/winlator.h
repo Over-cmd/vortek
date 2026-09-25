@@ -85,10 +85,13 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
 #include <vulkan/vulkan.h>
 
 // 1. Estructuras base necesarias para el serializador y gestor de memoria
+// 🚨 FIJADO: Añadido allocationList y allocationList_elements para calmar las macros de vortek.h
 typedef struct MemoryPool {
     void* buffer;
     size_t size;
     size_t offset;
+    void* allocationList;
+    int allocationList_elements[16]; 
 } MemoryPool;
 
 typedef struct VortekContext {
