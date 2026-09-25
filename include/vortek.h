@@ -68,12 +68,41 @@
 #define IS_DESCRIPTOR_BUFFER_INFO(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
 #define IS_DESCRIPTOR_TEXEL_BUFFER_VIEW(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
 
-/* 🚨 BLINDAJE DE COMPATIBILIDAD STANDALONE DEFINITIVO (MALI-G52) ──
-   Fuerza las estructuras de PC ausentes en el NDK móvil y unifica 
-   la asignación de memoria para que las macros compilen de largo */
+/* ── INYECCIÓN NATIVA DE COMPATIBILIDAD STANDALONE REAL (MALI-G52) ── */
 
-// (Se incluyen las estructuras VkPhysicalDeviceMapMemoryPlacedFeaturesEXT, MappedMemory, CommandBatch, tipos X11 y VortekContext)
-// Consulta el repositorio y el archivo de referencia para ver la definición completa de las estructuras y firmas nativas.
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 memoryMapPlaced;
+    VkBool32 memoryMapRangePlaced;
+    VkBool32 memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkDeviceSize minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
+typedef struct VkMemoryMapPlacedInfoEXT {
+    VkStructureType sType;
+    const void* pNext;
+    void* pPlacedAddress;
+} VkMemoryMapPlacedInfoEXT;
+
+// Firmas opacas de la plataforma X11 emuladas con .window lícito para la línea 1900
+typedef void* Display;
+typedef unsigned long VisualID;
+
+// Estructura Xlib ficticia con el miembro window exacto para calmar a Clang en vulkan_calls.c
+typedef struct VkXlibSurfaceCreateInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    uint32_t flags;
+    Display dpy;
+    unsigned long window; 
+} VkXlibSurfaceCreateInfoKHR;
 
 typedef struct VortekContext {
     MemoryPool memoryPool;
@@ -87,7 +116,6 @@ extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 extern VortekContext* context; 
 
-#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
 void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #ifndef VORTEK_H
