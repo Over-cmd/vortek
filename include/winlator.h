@@ -61,6 +61,7 @@ static inline pid_t currentThreadId() {
 #endif
 
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
+#include <vulkan/vulkan.h>
 
 // 1. Estructuras de listas genéricas reales utilizadas por Vortek
 typedef struct ArrayList {
@@ -107,11 +108,19 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     VkDeviceSize minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 
-/* 🚨 FIJADO: Agregado el struct MappedMemory huérfano exigido por vulkan_calls.c:331 */
+/* 🚨 FIJADO: Nombres corregidos a .data y .size como exige la lógica de munmap() */
 typedef struct MappedMemory {
     VkDeviceSize allocationSize;
-    void* pMemory;
+    void* data;
+    size_t size;
 } MappedMemory;
+
+/* 🚨 FIJADO: Añadido el molde CommandBatch huérfano exigido por la línea 1334 */
+typedef struct CommandBatch {
+    uint32_t capacity;
+    void* buffer;
+    uint32_t size;
+} CommandBatch;
 
 // 4. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
 extern int serverFd;
@@ -121,6 +130,7 @@ extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
 // 5. Prototipos de funciones nativas llamadas por las macros del serializador
-void recv_fds(int socket, int* fds, int* numFds, char* success, int count);
+// 🚨 FIJADO: Usamos void* success para unificar de forma transparente VkResult e int sin warnings
+void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #endif // WINLATOR_H
