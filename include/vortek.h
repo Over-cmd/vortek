@@ -86,6 +86,18 @@ typedef struct CommandBatch {
     int capacity;
     int size;
 } CommandBatch;
+
+typedef struct VortekContext {
+    MemoryPool memoryPool;
+} VortekContext;
+
+extern bool vortekInitOnce();
+extern int serverFd;
+extern uint16_t maxClientRequestId;
+extern MemoryPool globalMemoryPool;
+extern RingBuffer* serverRing;
+extern RingBuffer* clientRing;
+extern VortekContext* context;
 /* ────────────────────────────────────────────────────────────────────── */
 
 #define HEADER_SIZE 8
