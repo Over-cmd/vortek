@@ -158,54 +158,6 @@ typedef struct CommandBatch {
 #define IS_DESCRIPTOR_BUFFER_INFO(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
 #define IS_DESCRIPTOR_TEXEL_BUFFER_VIEW(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
 
-/* ── INYECCIÓN NATIVA DE COMPATIBILIDAD STANDALONE REAL (MALI-G52) ── */
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkBool32 memoryMapPlaced;
-    VkBool32 memoryMapRangePlaced;
-    VkBool32 memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkDeviceSize minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
-typedef struct VkMemoryMapPlacedInfoEXT {
-    VkStructureType sType;
-    const void* pNext;
-    void* pPlacedAddress;
-} VkMemoryMapPlacedInfoEXT;
-
-// Firmas opacas de la plataforma X11 emuladas con .window lícito para la línea 1900
-typedef void* Display;
-typedef unsigned long VisualID;
-
-// Estructura Xlib ficticia con el miembro window exacto para calmar a Clang en vulkan_calls.c
-typedef struct VkXlibSurfaceCreateInfoKHR {
-    VkStructureType sType;
-    const void* pNext;
-    uint32_t flags;
-    Display dpy;
-    unsigned long window; 
-} VkXlibSurfaceCreateInfoKHR;
-
-typedef struct VortekContext {
-    MemoryPool memoryPool;
-} VortekContext;
-
-extern bool vortekInitOnce();
-extern int serverFd;
-extern uint16_t maxClientRequestId;
-extern MemoryPool globalMemoryPool;
-extern RingBuffer* serverRing;
-extern RingBuffer* clientRing;
-extern VortekContext* context; 
-
 static inline void* findNextVkStructure(void* pNext, VkStructureType type) {
     while (pNext) {
         VkBaseOutStructure* curr = pNext;
