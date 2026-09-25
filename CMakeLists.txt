@@ -27,4 +27,4 @@ add_library(vulkan_vortek SHARED
     src/ring_buffer.c)
 
 # 🚨 FIJADO MASTER: Enlaza de forma obligatoria las dependencias del sistema Android
-target_link_libraries(vulkan_vortek PRIVATE log)
+target_link_libraries(vulkan_wrapper PRIVATE log)
