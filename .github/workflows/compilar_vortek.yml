@@ -50,13 +50,13 @@ jobs:
           # 1. Volcamos la librería compartida con su nombre obligatorio wrapper.so
           cp build/libvulkan_wrapper.so estructura_wrapper/usr/lib/
           
-          # 2. 🚨 FIJADO MASTER: Calcado milimétrico en una sola línea con el formato exacto del wrapper original
-          # Corregida la versión de API a 1.3.289 y el orden de los factores para que Bannerlator lea el archivo limpio
+          # 2. Replicamos el manifiesto ICD oficial en una sola línea exacta
           echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > estructura_wrapper/usr/share/vulkan/icd.d/wrapper_icd.aarch64.json
           
-          # 3. Comprimimos la jerarquía de carpetas completa respetando el formato wrapper.tzst
+          # 3. 🚨 FIJADO MASTER: Forzamos la compresión desde la raíz limpia de carpetas
+          # Usamos el parámetro --no-same-owner y nos posicionamos dentro para evitar rutas fantasmas de Linux
           cd estructura_wrapper
-          tar -I zstd -cf ../vortek.wrapper.tzst usr/
+          tar --no-same-owner -I 'zstd -19 -T0' -cf ../vortek.wrapper.tzst usr
           cd ..
           
           # Preparamos la carpeta de salida limpia para el artefacto descargable
