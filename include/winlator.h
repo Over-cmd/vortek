@@ -81,4 +81,29 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
    de las propiedades de presupuesto para que no rompa la lectura struct */
 #define minPlacedMemoryMapAlignment totalHeapBudget
 
+/* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
+#include <vulkan/vulkan.h>
+
+// Definición base de MemoryPool para satisfacer las macros vt_free / vt_alloc
+typedef struct MemoryPool {
+    void* buffer;
+    size_t size;
+    size_t offset;
+} MemoryPool;
+
+// Definición base del Context de Vortek
+typedef struct VortekContext {
+    MemoryPool memoryPool;
+} VortekContext;
+
+// Declaración de variables globales huérfanas externas del sistema cliente/servidor
+extern int serverFd;
+extern MemoryPool globalMemoryPool;
+extern VortekContext* context;
+
+// Prototipos de funciones nativas llamadas por las macros del serializador
+void recv_fds(int socket, int* fds, int* numFds, int* success, int count);
+void* vt_alloc(MemoryPool* pool, size_t size);
+void vt_free(MemoryPool* pool);
+
 #endif // WINLATOR_H
