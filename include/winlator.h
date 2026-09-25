@@ -103,15 +103,33 @@ typedef struct RingBuffer {
     uint32_t size;
 } RingBuffer;
 
+/* 🚨 MOLDES ESPEJO DE ESCRITORIO CORREGIDOS:
+   Declaramos las variables con sus nombres literales exactos para satisfacer 
+   la asignación directa val->miembro en vortek_serializer.h sin macros de remapeo */
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 memoryMapPlaced;
+    VkBool32 memoryMapRangePlaced;
+    VkBool32 memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkDeviceSize minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
 // 3. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
 extern int serverFd;
 extern MemoryPool globalMemoryPool;
 extern VortekContext* context;
-extern RingBuffer* serverRing; // 🚨 FIJADO: Registrado para limpiar el error de destrucción/creación
-extern RingBuffer* clientRing; // 🚨 FIJADO: Registrado para limpiar el error de recepción de tramas
+extern RingBuffer* serverRing;
+extern RingBuffer* clientRing;
 
-// 4. Prototipos de funciones nativas llamadas por las macros del serializador
-void recv_fds(int socket, int* fds, int* numFds, int* success, int count);
+/* 4. Prototipos de funciones nativas llamados por las macros del serializador
+   🚨 FIJADO: Cambiamos int* success por char* success para emparejarlo con vulkan_calls.c */
+void recv_fds(int socket, int* fds, int* numFds, char* success, int count);
 void* vt_alloc(MemoryPool* pool, size_t size);
 void vt_free(MemoryPool* pool);
 int vt_send(RingBuffer* ring, uint32_t code, void* data, uint32_t size);
