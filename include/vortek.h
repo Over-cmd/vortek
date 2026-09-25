@@ -1,3 +1,110 @@
+#ifndef VORTEK_H
+#define VORTEK_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <stdarg.h>
+#include <string.h>
+#include <malloc.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <pthread.h>
+
+#include "vulkan/vulkan.h"
+#include "request_codes.h"
+#include "vk_object.h"
+#include "arrays.h"
+#include "events.h"
+#include "time_utils.h"
+#include "socket_utils.h"
+#include "ring_buffer.h"
+#include "thread_pool.h"
+/* 🚨 INYECCIÓN DE COMPATIBILIDAD VULKAN STANDALONE:
+   Fuerza los tipos de datos y moldes de PC ausentes en el NDK móvil 
+   directo en el núcleo de las cabeceras para que el serializador compile limpio */
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 memoryMapPlaced;
+    VkBool32 memoryMapRangePlaced;
+    VkBool32 memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkDeviceSize minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+typedef struct VkMemoryMapPlacedInfoEXT {
+    VkStructureType sType;
+    const void* pNext;
+    void* pPlacedAddress;
+} VkMemoryMapPlacedInfoEXT;
+
+// Firmas nativas básicas para el enlazador
+typedef void* Display;
+typedef unsigned long VisualID;
+typedef void* VkXlibSurfaceCreateInfoKHR;
+typedef void* VkAllocationCallbacks;
+
+#include "request_codes.h"
+#include "vk_object.h"
+
+typedef struct MemoryPool {
+    void* data;
+    int size;
+    ArrayList allocationList;
+} MemoryPool;
+
+typedef struct VkContext VkContext;
+
+#ifdef VT_SERVER
+#include <jni.h>
+#include <android/log.h>
+#include "resource_memory.h"
+#include "shader_inspector.h"
+
+typedef struct JMethods {
+    JavaVM* jvm;
+    JNIEnv* env;
+    jobject obj;
+    jmethodID getWindowWidth;
+    jmethodID getWindowHeight;
+    jmethodID getWindowHardwareBuffer;
+    jmethodID updateWindowContent;
+} JMethods;
+#endif // VT_SERVER
+
+/* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE (MALI-G52) ── */
+typedef struct MappedMemory {
+    void* data;
+    int allocationSize;
+    int size;
+} MappedMemory;
+
+// Dejamos una Sola definición de CommandBatch aquí abajo para limpiar el duplicado
+typedef struct CommandBatch {
+    char* buffer;
+    int capacity;
+    int size;
+} CommandBatch;
+
+typedef struct VortekContext {
+    MemoryPool memoryPool;
+} VortekContext;
+
+extern bool vortekInitOnce();
+extern int serverFd;
+extern uint16_t maxClientRequestId;
+extern MemoryPool globalMemoryPool;
+extern RingBuffer* serverRing;
+extern RingBuffer* clientRing;
+extern VortekContext* context; // Sella el puntero exigido por la macro VT_SERIALIZE_CMD
+/* ────────────────────────────────────────────────────────────────────── */
+
 #define HEADER_SIZE 8
 #define DEVICE_NAME "Vortek (%s)"
 #define ENABLE_VALIDATION_LAYER 0 // FIXME set to 0 and remove libVkLayer from jniLibs
@@ -117,122 +224,6 @@ extern RingBuffer* clientRing;
 extern VortekContext* context; 
 
 void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
-
-#ifndef VORTEK_H
-#define VORTEK_H
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <stdarg.h>
-#include <string.h>
-#include <malloc.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <pthread.h>
-
-#include "vulkan/vulkan.h"
-#include "request_codes.h"
-#include "vk_object.h"
-#include "arrays.h"
-#include "events.h"
-#include "time_utils.h"
-#include "socket_utils.h"
-#include "ring_buffer.h"
-#include "thread_pool.h"
-
-/* 🚨 INYECCIÓN DE COMPATIBILIDAD VULKAN STANDALONE:
-   Fuerza los tipos de datos y moldes de PC ausentes en el NDK móvil 
-   directo en el núcleo de las cabeceras para que el serializador compile limpio */
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkBool32 memoryMapPlaced;
-    VkBool32 memoryMapRangePlaced;
-    VkBool32 memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkDeviceSize minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-typedef struct VkMemoryMapPlacedInfoEXT {
-    VkStructureType sType;
-    const void* pNext;
-    void* pPlacedAddress;
-} VkMemoryMapPlacedInfoEXT;
-
-typedef struct CommandBatch {
-    char* buffer;
-    int capacity;
-    int size;
-} CommandBatch;
-
-// Firmas nativas básicas para el enlazador
-typedef void* Display;
-typedef unsigned long VisualID;
-typedef void* VkXlibSurfaceCreateInfoKHR;
-typedef void* VkAllocationCallbacks;
-
-#include "request_codes.h"
-#include "vk_object.h"
-
-typedef struct MemoryPool {
-    void* data;
-    int size;
-    ArrayList allocationList;
-} MemoryPool;
-
-typedef struct VkContext VkContext;
-
-#ifdef VT_SERVER
-
-#include <jni.h>
-#include <android/log.h>
-
-#include "resource_memory.h"
-#include "shader_inspector.h"
-
-typedef struct JMethods {
-    JavaVM* jvm;
-    JNIEnv* env;
-    jobject obj;
-    jmethodID getWindowWidth;
-    jmethodID getWindowHeight;
-    jmethodID getWindowHardwareBuffer;
-    jmethodID updateWindowContent;
-} JMethods;
-
-#endif // VT_SERVER
-
-/* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE (MALI-G52) ── */
-typedef struct MappedMemory {
-    void* data;
-    int allocationSize;
-    int size;
-} MappedMemory;
-
-typedef struct CommandBatch {
-    char* buffer;
-    int capacity;
-    int size;
-} CommandBatch;
-
-typedef struct VortekContext {
-    MemoryPool memoryPool;
-} VortekContext;
-
-extern bool vortekInitOnce();
-extern int serverFd;
-extern uint16_t maxClientRequestId;
-extern MemoryPool globalMemoryPool;
-extern RingBuffer* serverRing;
-extern RingBuffer* clientRing;
-extern VortekContext* context; // Sella el puntero exigido por la macro VT_SERIALIZE_CMD
-/* ────────────────────────────────────────────────────────────────────── */
 
 static inline void* findNextVkStructure(void* pNext, VkStructureType type) {
     while (pNext) {
