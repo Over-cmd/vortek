@@ -61,13 +61,7 @@ typedef struct VkXlibSurfaceCreateInfoKHR {
     unsigned long window; 
 } VkXlibSurfaceCreateInfoKHR;
 
-/* 🚨 MOLDE NATIVO SANEADO: Declaramos ArrayList antes de meterlo dentro de MemoryPool */
-typedef struct ArrayList {
-    void** elements;
-    int size;
-    int capacity;
-} ArrayList;
-
+/* 🚨 MOLDE NATIVO SANEADO ── */
 typedef struct MemoryPool {
     void* data;
     int size;
