@@ -41,29 +41,48 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y zstd
 
-      - name: 6. Fabricar Estructura Unix y Empaquetar en wrapper.tzst
+      - name: 6. Instalar Herramientas de Empaquetado y Patchelf
         run: |
-          # Creamos el árbol de directorios estándar exigido por Bannerlator
-          mkdir -p estructura_wrapper/usr/lib
-          mkdir -p estructura_wrapper/usr/share/vulkan/icd.d
-          
-          # 1. Volcamos la librería compartida con su nombre obligatorio wrapper.so
-          cp build/libvulkan_wrapper.so estructura_wrapper/usr/lib/
-          
-          # 2. Replicamos el manifiesto ICD oficial en una sola línea exacta
-          echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > estructura_wrapper/usr/share/vulkan/icd.d/wrapper_icd.aarch64.json
-          
-          # 3. 🚨 FIJADO MASTER: Forzamos la compresión desde la raíz limpia de carpetas
-          # Usamos el parámetro --no-same-owner y nos posicionamos dentro para evitar rutas fantasmas de Linux
-          cd estructura_wrapper
-          tar --no-same-owner -I 'zstd -19 -T0' -cf ../vortek.wrapper.tzst usr
-          cd ..
-          
-          # Preparamos la carpeta de salida limpia para el artefacto descargable
-          mkdir -p salida_final
-          cp vortek.wrapper.tzst salida_final/
+          sudo apt-get update
+          sudo apt-get install -y zstd patchelf
 
-      - name: 7. Guardar y Subir el .wrapper.tzst como Artefacto Descargable
+      - name: 7. Forjar Paquete Esencial Original de Rendimiento Máximo (wrapper.tzst)
+        run: |
+          WRAPPER_SO="build/libvulkan_wrapper.so"
+          
+          if [ -f "$WRAPPER_SO" ]; then
+            echo "-> [Host] ¡Éxito! Estructurando tu paquete original compatible de producción..."
+            rm -rf final_pkg wrapper.tzst
+            mkdir -p final_pkg/usr/lib final_pkg/usr/share/vulkan/icd.d
+            
+            cp -fv "$WRAPPER_SO" final_pkg/usr/lib/libvulkan_wrapper.so
+            
+            # Otorgamos los permisos de ejecución de sistema obligatorios para Android
+            chmod -R 755 final_pkg/usr/lib/
+            
+            # Sella el nombre de la librería interna para el cargador biónico
+            patchelf --set-soname libvulkan_wrapper.so final_pkg/usr/lib/libvulkan_wrapper.so || true
+            find final_pkg/usr/lib/ -name "*.so" -exec patchelf --set-rpath '$ORIGIN' {} \; 2>/dev/null || true
+            
+            # Tu manifiesto original plano compatible con Bannerlator
+            echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > final_pkg/usr/share/vulkan/icd.d/wrapper_icd.aarch64.json
+            echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > final_pkg/usr/share/vulkan/icd.d/wrapper_icd.arm.json
+            
+            sync && sleep 3
+            
+            # Compresión limpia que ZArchiver y Bannerlator devorarán a la primera
+            cd final_pkg && tar -I 'zstd -19 -T0' -cf ../wrapper.tzst usr/ && cd ..
+            echo "-> ¡Paquete original puro forjado con éxito!"
+          else
+            echo "-> [Error] El binario compilar no fue encontrado."
+            exit 1
+          fi
+          
+          # Preparamos la carpeta de salida limpia para el artefacto de GitHub
+          mkdir -p salida_final
+          cp wrapper.tzst salida_final/
+
+      - name: 8. Guardar y Subir el .wrapper.tzst como Artefacto Descargable
         uses: actions/upload-artifact@v4
         with:
           name: Vortek-Wrapper-Bannerlator
