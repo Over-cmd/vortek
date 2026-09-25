@@ -41,14 +41,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y zstd
 
-      - name: 6. Fabricar Estructura y Empaquetar en wrapper.tzst
+      - name: 6. Fabricar Estructura Unix y Empaquetar en wrapper.tzst
         run: |
-          # Creamos la estructura exacta que el instalador de Bannerlator espera leer
-          mkdir -p estructura_wrapper/lib
-          cp build/libvulkan_vortek.so estructura_wrapper/lib/
+          # 🚨 FIJADO MASTER: Creamos el árbol de directorios estándar exigido por Bannerlator
+          mkdir -p estructura_wrapper/usr/lib
+          mkdir -p estructura_wrapper/usr/share/vulkan/icd.d
           
-          # Generamos el manifiesto ICD oficial apuntando a la ruta genérica interna
-          cat << 'EOF' > estructura_wrapper/vortek_icd.json
+          # 1. Volcamos la librería compartida dentro de usr/lib/
+          cp build/libvulkan_vortek.so estructura_wrapper/usr/lib/
+          
+          # 2. Generamos el manifiesto ICD apuntando al nombre de librería local relativo
+          cat << 'EOF' > estructura_wrapper/usr/share/vulkan/icd.d/vortek_icd.aarch64.json
           {
               "file_format_version": "1.0.0",
               "ICD": {
@@ -58,12 +61,12 @@ jobs:
           }
           EOF
           
-          # Comprimimos la carpeta usando Tar + Zstandard para dar a luz al wrapper.tzst
+          # 3. Comprimimos la jerarquía de carpetas completa respetando el formato wrapper.tzst
           cd estructura_wrapper
-          tar -I zstd -cf ../vortek.wrapper.tzst lib/ vortek_icd.json
+          tar -I zstd -cf ../vortek.wrapper.tzst usr/
           cd ..
           
-          # Preparamos la carpeta de salida limpia para el artefacto de GitHub
+          # Preparamos la carpeta de salida limpia para el artefacto descargable
           mkdir -p salida_final
           cp vortek.wrapper.tzst salida_final/
 
