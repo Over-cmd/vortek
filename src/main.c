@@ -91,3 +91,15 @@ bool vortekInitOnce() {
     
     return serverFd > 0;
 }
+
+// 🚨 FIJADO MAESTRO DE NEGOCIACIÓN ICD: Obligatorio para que Bannerlator active las Capabilities
+#ifdef __ANDROID__
+#include <vulkan/vk_icd.h>
+
+VKAPI_ATTR VkResult VKAPI_CALL vk_icdNegotiateLoaderICDInterfaceVersion(uint32_t* pSupportedVersion) {
+    if (pSupportedVersion == NULL) return VK_ERROR_INITIALIZATION_FAILED;
+    // Forzamos la versión 2 o superior que exige el cargador moderno de Android y Wine biónico
+    *pSupportedVersion = 2;
+    return VK_SUCCESS;
+}
+#endif
