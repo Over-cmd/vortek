@@ -84,14 +84,20 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
 #include <vulkan/vulkan.h>
 
+// Moldes de soporte para que el serializador pueda iterar sobre las matrices limpiamente
+typedef struct VortekAllocation {
+    void* handle;
+    size_t size;
+} VortekAllocation;
+
 // 1. Estructuras base necesarias para el serializador y gestor de memoria
-// 🚨 FIJADO: Añadido allocationList y allocationList_elements para calmar las macros de vortek.h
+// 🚨 FIJADO: Cambiamos void* allocationList por un puntero estructurado real de VortekAllocation
 typedef struct MemoryPool {
     void* buffer;
     size_t size;
     size_t offset;
-    void* allocationList;
-    int allocationList_elements[16]; 
+    VortekAllocation* allocationList;
+    int allocationList_elements; 
 } MemoryPool;
 
 typedef struct VortekContext {
@@ -107,7 +113,7 @@ typedef struct RingBuffer {
 } RingBuffer;
 
 /* 🚨 MOLDES ESPEJO DE ESCRITORIO CORREGIDOS:
-   Declaramos las variables con sus nombres literales exactos para satisfacer 
+   Declaramos las variables con sus nombres virtuales exactos para satisfacer 
    la asignación directa val->miembro en vortek_serializer.h sin macros de remapeo */
 typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
     VkStructureType sType;
@@ -130,12 +136,10 @@ extern VortekContext* context;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
-/* 4. Prototipos de funciones nativas llamados por las macros del serializador
-   🚨 FIJADO: Cambiamos int* success por char* success para emparejarlo con vulkan_calls.c */
+/* 4. Prototipos de funciones nativas llamadas por las macros del serializador
+   🚨 FIJADO: Removidos vt_send y vt_recv para evitar colisiones estáticas con vortek.h */
 void recv_fds(int socket, int* fds, int* numFds, char* success, int count);
 void* vt_alloc(MemoryPool* pool, size_t size);
 void vt_free(MemoryPool* pool);
-int vt_send(RingBuffer* ring, uint32_t code, void* data, uint32_t size);
-int vt_recv(RingBuffer* ring, char** outputBuffer, uint32_t* outputSize, MemoryPool* pool);
 
 #endif // WINLATOR_H
