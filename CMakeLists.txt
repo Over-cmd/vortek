@@ -27,8 +27,7 @@ add_library(vulkan_wrapper SHARED
     src/descriptor_update_template.c
     src/ring_buffer.c)
 
-# 🚨 JUGADA MAESTRA DEFINITIVA: Creamos alias directos en el linker para exportar los nombres ICD limpios 
-# Esto hace que vt_call_vkCreateInstance se exponga al sistema biónico como vkCreateInstance de forma legítima
+# 🚨 REDIRECCIÓN DIRECTA: Enlazamos los métodos internos con los nombres estándar que Bannerlator busca en la tabla biónica
 set(LINK_ALIASES
     "-Wl,--defsym=vkGetInstanceProcAddr=vt_call_vkGetInstanceProcAddr"
     "-Wl,--defsym=vkGetDeviceProcAddr=vt_call_vkGetDeviceProcAddr"
@@ -42,7 +41,6 @@ set(LINK_ALIASES
     "-Wl,--defsym=vkEnumerateDeviceExtensionProperties=vt_call_vkEnumerateDeviceExtensionProperties"
 )
 
-# Unificamos los alias en las propiedades de enlace del binario compartido
 string(REPLACE ";" " " LINK_ALIASES_STR "${LINK_ALIASES}")
 set_target_properties(vulkan_wrapper PROPERTIES LINK_FLAGS "${LINK_ALIASES_STR}")
 
