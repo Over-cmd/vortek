@@ -43,19 +43,19 @@ jobs:
 
       - name: 6. Fabricar Estructura Unix y Empaquetar en wrapper.tzst
         run: |
-          # 🚨 FIJADO MASTER: Creamos el árbol de directorios estándar exigido por Bannerlator
+          # Creamos el árbol de directorios estándar exigido por Bannerlator
           mkdir -p estructura_wrapper/usr/lib
           mkdir -p estructura_wrapper/usr/share/vulkan/icd.d
           
-          # 1. Volcamos la librería compartida dentro de usr/lib/
-          cp build/libvulkan_vortek.so estructura_wrapper/usr/lib/
+          # 1. Volcamos la librería compartida con su nombre obligatorio wrapper.so
+          cp build/libvulkan_wrapper.so estructura_wrapper/usr/lib/
           
-          # 2. Generamos el manifiesto ICD apuntando al nombre de librería local relativo
-          cat << 'EOF' > estructura_wrapper/usr/share/vulkan/icd.d/vortek_icd.aarch64.json
+          # 2. Generamos el manifiesto ICD oficial con el nombre exacto exigido por la app
+          cat << 'EOF' > estructura_wrapper/usr/share/vulkan/icd.d/wrapper_icd.aarch64.json
           {
               "file_format_version": "1.0.0",
               "ICD": {
-                  "library_path": "libvulkan_vortek.so",
+                  "library_path": "libvulkan_wrapper.so",
                   "api_version": "1.3.0"
               }
           }
