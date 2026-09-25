@@ -1,3 +1,10 @@
+#ifndef WINLATOR_H
+#define WINLATOR_H
+
+#include <unistd.h>
+#include <syscall.h>
+#include <vulkan/vulkan.h>
+
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array)[0])
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
@@ -32,12 +39,6 @@
     } \
     while(0)
 
-#ifndef WINLATOR_H
-#define WINLATOR_H
-
-#include <unistd.h>
-#include <syscall.h>
-
 static inline pid_t currentThreadId() {
 #ifdef __ANDROID__
     return gettid();
@@ -50,7 +51,6 @@ static inline pid_t currentThreadId() {
 #include <android/log.h>
 #define println(...) __android_log_print(ANDROID_LOG_DEBUG, "System.out", __VA_ARGS__)
 #else
-
 #define println(fmt, ...) \
     do { \
         char fmtBuf[256] = {0}; \
@@ -60,4 +60,25 @@ static inline pid_t currentThreadId() {
     while (0)
 #endif
 
-#endif
+/* 🚨 ESCUDO DE COMPATIBILIDAD VORTEK MALI-G52:
+   Declaramos los moldes espejo de las estructuras de escritorio que le faltan 
+   al NDK de Android para que el preprocesador de Clang digiera el serializador */
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 memoryMapPlaced;
+    VkBool32 memoryMapRangePlaced;
+    VkBool32 memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    VkStructureType sType;
+    void* pNext;
+    VkDeviceSize minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+/* Mapeamos la variable de alineación fantasma hacia un miembro nativo real 
+   de las propiedades de presupuesto para que no rompa la lectura struct */
+#define minPlacedMemoryMapAlignment totalHeapBudget
+
+#endif // WINLATOR_H
