@@ -51,7 +51,7 @@ typedef struct ResourceMemory {
     void* pMappedData;
 } ResourceMemory;
 
-// Firmas nativas básicas de la plataforma X11 de escritorio emuladas
+// Firmas nativas básicas de la plataforma X11 de escritorio emuladas para la línea 1900
 typedef void* Display;
 typedef unsigned long VisualID;
 
@@ -84,19 +84,8 @@ typedef struct CommandBatch {
     int size;
 } CommandBatch;
 
-typedef struct VortekContext {
-    MemoryPool memoryPool;
-} VortekContext;
-
-extern bool vortekInitOnce();
-extern int serverFd;
-extern uint16_t maxClientRequestId;
-extern MemoryPool globalMemoryPool;
-extern RingBuffer* serverRing;
-extern RingBuffer* clientRing;
-extern VortekContext* context; 
-
-// 🚨 REMOVIDA: Quitamos la firma conflictiva de recv_fds porque socket_utils.h ya la declara
+// 🚨 FIJADO DEF: Quitamos el duplicado de VortekContext, recv_fds y las variables extern de aquí, 
+// ya que el archivo original de tu repositorio ya los declara nativamente en las líneas 78-89.
 /* ────────────────────────────────────────────────────────────────────── */
 
 #define HEADER_SIZE 8
