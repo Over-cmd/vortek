@@ -5,7 +5,7 @@
 #include <syscall.h>
 #include <vulkan/vulkan.h>
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array)[0])
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
 #define CLAMP(x, low, high) (((x)>(high))?(high):(((x)<(low))?(low):(x)))
@@ -60,29 +60,7 @@ static inline pid_t currentThreadId() {
     while (0)
 #endif
 
-/* 🚨 ESCUDO DE COMPATIBILIDAD VORTEK MALI-G52:
-   Declaramos los moldes espejo de las estructuras de escritorio que le faltan 
-   al NDK de Android para que el preprocesador de Clang digiera el serializador */
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkBool32 memoryMapPlaced;
-    VkBool32 memoryMapRangePlaced;
-    VkBool32 memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkDeviceSize minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-/* Mapeamos la variable de alineación fantasma hacia un miembro nativo real 
-   de las propiedades de presupuesto para que no rompa la lectura struct */
-#define minPlacedMemoryMapAlignment totalHeapBudget
-
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
-#include <vulkan/vulkan.h>
 
 // 1. Estructuras de listas genéricas reales utilizadas por Vortek
 typedef struct ArrayList {
@@ -92,7 +70,6 @@ typedef struct ArrayList {
 } ArrayList;
 
 // 2. Estructuras base necesarias para el serializador y gestor de memoria
-// 🚨 FIJADO: Mapeado con .data y el tipo ArrayList real para acoplar arrays.h y main.c
 typedef struct MemoryPool {
     void* data;
     size_t size;
@@ -113,7 +90,7 @@ typedef struct RingBuffer {
     uint32_t size;
 } RingBuffer;
 
-/* 🚨 MOLDES ESPEJO DE ESCRITORIO CORREGIDOS:
+/* 🚨 MOLDES ESPEJO DE ESCRITORIO DEFINITIVOS:
    Declaramos las variables con sus nombres virtuales exactos para satisfacer 
    la asignación directa val->miembro en vortek_serializer.h sin macros de remapeo */
 typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
@@ -130,6 +107,12 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     VkDeviceSize minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 
+/* 🚨 FIJADO: Agregado el struct MappedMemory huérfano exigido por vulkan_calls.c:331 */
+typedef struct MappedMemory {
+    VkDeviceSize allocationSize;
+    void* pMemory;
+} MappedMemory;
+
 // 4. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
 extern int serverFd;
 extern MemoryPool globalMemoryPool;
@@ -139,8 +122,5 @@ extern RingBuffer* clientRing;
 
 // 5. Prototipos de funciones nativas llamadas por las macros del serializador
 void recv_fds(int socket, int* fds, int* numFds, char* success, int count);
-void* vt_alloc(MemoryPool* pool, size_t size);
-void vt_free(MemoryPool* pool);
 
 #endif // WINLATOR_H
-
