@@ -12,7 +12,7 @@
 #include "winlator.h"
 
 #ifdef __ANDROID__
-#define VT_SERVER 0
+#define VT_SERVER 1
 #define VK_NO_PROTOTYPES 1
 #endif
 
@@ -156,8 +156,9 @@ typedef struct JMethods {
     jmethodID updateWindowContent;
 } JMethods;
 
-#else // VT_SERVER
+#endif // VT_SERVER
 
+/* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE (MALI-G52) ── */
 typedef struct MappedMemory {
     void* data;
     int allocationSize;
@@ -170,13 +171,18 @@ typedef struct CommandBatch {
     int size;
 } CommandBatch;
 
+typedef struct VortekContext {
+    MemoryPool memoryPool;
+} VortekContext;
+
 extern bool vortekInitOnce();
 extern int serverFd;
 extern uint16_t maxClientRequestId;
 extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
-#endif
+extern VortekContext* context; // Sella el puntero exigido por la macro VT_SERIALIZE_CMD
+/* ────────────────────────────────────────────────────────────────────── */
 
 static inline void* findNextVkStructure(void* pNext, VkStructureType type) {
     while (pNext) {
