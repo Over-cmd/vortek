@@ -60,20 +60,8 @@ jobs:
             patchelf --set-soname libvulkan_wrapper.so final_pkg/usr/lib/libvulkan_wrapper.so || true
             find final_pkg/usr/lib/ -name "*.so" -exec patchelf --set-rpath '$ORIGIN' {} \; 2>/dev/null || true
             
-            # 3. EL ENGAÑO PERFECTO: Escribimos el JSON de capa en su sitio real para el motor de Linux
-            cat << 'EOF' > final_pkg/usr/share/vulkan/implicit_layer.d/vortek_layer.json
-{
-    "file_format_version": "1.0.0",
-    "layer": {
-        "name": "VK_LAYER_VORTEK_interceptor",
-        "type": "GLOBAL",
-        "library_path": "libvulkan_wrapper.so",
-        "api_version": "1.3.289",
-        "description": "Vortek Standalone Texture Interceptor Layer",
-        "implementation_version": "1"
-    }
-}
-EOF
+            # 3. 🚨 FIJADO MASTER: Escribimos el JSON de capa usando echo en una sola línea para no romper el sangrado YAML
+            echo '{"file_format_version": "1.0.0", "layer": {"name": "VK_LAYER_VORTEK_interceptor", "type": "GLOBAL", "library_path": "libvulkan_wrapper.so", "api_version": "1.3.289", "description": "Vortek Standalone Texture Interceptor Layer", "implementation_version": "1"}}' > final_pkg/usr/share/vulkan/implicit_layer.d/vortek_layer.json
             
             # 4. ...Y escribimos el JSON de Driver plano en icd.d con el formato exacto del original 
             # Esto es lo que obligará a la interfaz de Bannerlator a leer y poblar las capabilities en la pantalla de instalación
