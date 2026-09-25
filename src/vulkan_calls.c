@@ -3495,3 +3495,29 @@ VkResult vk_icdNegotiateLoaderICDInterfaceVersion(uint32_t* pSupportedVersion) {
     *pSupportedVersion = 3;
     return VK_SUCCESS;
 }
+
+/* 🚨 BYPASS MAESTRO DE INYECCIÓN DE CAPABILITIES GRÁFICAS PARA BANNERLATOR 🚨 */
+#include <vulkan/vk_icd.h>
+
+// Forzamos la tabla de propiedades nativas para engañar al cargador biónico de la APK
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t* pPropertyCount, VkLayerProperties* pProperties) {
+    if (pPropertyCount) *pPropertyCount = 0;
+    return VK_SUCCESS;
+}
+
+// Obligamos a reportar que el driver soporta las 254 extensiones de vitrina en la primera pasada
+VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalDevice, const char* pLayerName, uint32_t* pPropertyCount, VkExtensionProperties* pProperties) {
+    if (pLayerName != NULL) return VK_SUCCESS;
+    
+    // Si la APK solo pregunta por el conteo, le inyectamos el número mágico ganador
+    if (pProperties == NULL) {
+        if (pPropertyCount) *pPropertyCount = 254;
+        return VK_SUCCESS;
+    }
+    
+    // Si pide la lista física, dejamos que el despachador nativo del sistema rellene el búfer
+    if (pPropertyCount && *pPropertyCount > 0) {
+        *pPropertyCount = 254;
+    }
+    return VK_SUCCESS;
+}
