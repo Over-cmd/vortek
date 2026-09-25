@@ -84,19 +84,22 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
 /* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
 #include <vulkan/vulkan.h>
 
-// Moldes de soporte para que el serializador pueda iterar sobre las matrices limpiamente
+// 1. Estructuras base necesarias para el serializador y gestor de memoria
+// 🚨 FIJADO: Añadido el contenedor anidado .elements exigido por la línea 206 de vortek.h
 typedef struct VortekAllocation {
     void* handle;
     size_t size;
 } VortekAllocation;
 
-// 1. Estructuras base necesarias para el serializador y gestor de memoria
-// 🚨 FIJADO: Cambiamos void* allocationList por un puntero estructurado real de VortekAllocation
+typedef struct VortekAllocationList {
+    VortekAllocation* elements;
+} VortekAllocationList;
+
 typedef struct MemoryPool {
     void* buffer;
     size_t size;
     size_t offset;
-    VortekAllocation* allocationList;
+    VortekAllocationList allocationList; // 🌟 Ahora contiene .elements de forma legal
     int allocationList_elements; 
 } MemoryPool;
 
