@@ -20,9 +20,8 @@
 #include "socket_utils.h"
 #include "ring_buffer.h"
 #include "thread_pool.h"
-/* 🚨 INYECCIÓN DE COMPATIBILIDAD VULKAN STANDALONE:
-   Fuerza los tipos de datos y moldes de PC ausentes en el NDK móvil 
-   directo en el núcleo de las cabeceras para que el serializador compile limpio */
+
+/* 🚨 INYECCIÓN DE COMPATIBILIDAD VULKAN STANDALONE DEFINITIVA (MALI-G52) ── */
 
 typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
     VkStructureType sType;
@@ -38,54 +37,40 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     VkDeviceSize minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 
+#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
 typedef struct VkMemoryMapPlacedInfoEXT {
     VkStructureType sType;
     const void* pNext;
     void* pPlacedAddress;
 } VkMemoryMapPlacedInfoEXT;
 
-// Firmas nativas básicas para el enlazador
+// Estructura de memoria exigida por el serializador en la línea 16332
+typedef struct ResourceMemory {
+    VkDeviceMemory memory;
+    VkDeviceSize size;
+    void* pMappedData;
+} ResourceMemory;
+
+// Firmas nativas básicas de la plataforma X11 de escritorio emuladas
 typedef void* Display;
 typedef unsigned long VisualID;
-typedef void* VkXlibSurfaceCreateInfoKHR;
-typedef void* VkAllocationCallbacks;
 
-#include "request_codes.h"
-#include "vk_object.h"
+// Molde de la superficie X11 simulado con su miembro .window para calmar a Clang
+typedef struct VkXlibSurfaceCreateInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    uint32_t flags;
+    Display dpy;
+    unsigned long window; 
+} VkXlibSurfaceCreateInfoKHR;
 
-typedef struct MemoryPool {
-    void* data;
-    int size;
-    ArrayList allocationList;
-} MemoryPool;
-
-typedef struct VkContext VkContext;
-
-#ifdef VT_SERVER
-#include <jni.h>
-#include <android/log.h>
-#include "resource_memory.h"
-#include "shader_inspector.h"
-
-typedef struct JMethods {
-    JavaVM* jvm;
-    JNIEnv* env;
-    jobject obj;
-    jmethodID getWindowWidth;
-    jmethodID getWindowHeight;
-    jmethodID getWindowHardwareBuffer;
-    jmethodID updateWindowContent;
-} JMethods;
-#endif // VT_SERVER
-
-/* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE (MALI-G52) ── */
+/* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE ── */
 typedef struct MappedMemory {
     void* data;
     int allocationSize;
     int size;
 } MappedMemory;
 
-// Dejamos una Sola definición de CommandBatch aquí abajo para limpiar el duplicado
 typedef struct CommandBatch {
     char* buffer;
     int capacity;
@@ -102,7 +87,9 @@ extern uint16_t maxClientRequestId;
 extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
-extern VortekContext* context; // Sella el puntero exigido por la macro VT_SERIALIZE_CMD
+extern VortekContext* context; 
+
+void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 /* ────────────────────────────────────────────────────────────────────── */
 
 #define HEADER_SIZE 8
