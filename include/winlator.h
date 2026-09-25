@@ -6,9 +6,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <vulkan/vulkan.h>
 
-// 🚨 FIJADO: Corregida la macro matemática real dividiendo por el índice [0] para la vkDispatchTable
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof((array)[0]))
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
@@ -63,33 +61,5 @@ static inline pid_t currentThreadId() {
     } \
     while (0)
 #endif
-
-/* 🚨 BLINDAJE DE COMPATIBILIDAD DEFINITIVO X11/WAYLAND BANNERLATOR 🚨 */
-
-// Tipos opacos requeridos por la firma
-typedef void* Display;
-typedef unsigned long VisualID;
-typedef void* VkAllocationCallbacks;
-
-// 🚨 FIJADO MASTER: Forzamos la macro sobre la estructura para aplastar la definición void* del NDK 
-// Esto obliga a Clang a ver a pCreateInfo->window como una estructura lícita en la línea 1900
-#define VkXlibSurfaceCreateInfoKHR struct VkXlibSurfaceCreateInfoKHR
-VkXlibSurfaceCreateInfoKHR {
-    VkStructureType sType;
-    const void* pNext;
-    uint32_t flags;
-    Display dpy;
-    unsigned long window; 
-};
-
-// Estructura de memoria exigida por el serializador en la línea 16332
-typedef struct ResourceMemory {
-    VkDeviceMemory memory;
-    VkDeviceSize size;
-    void* pMappedData;
-} ResourceMemory;
-
-// Firma nativa externa para enlazar las llamadas de descriptores de archivos de Winlator
-void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #endif // WINLATOR_H
