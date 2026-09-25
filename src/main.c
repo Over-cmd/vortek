@@ -97,19 +97,16 @@ bool vortekInitOnce() {
 }
 
 /* 🚨 INTERFAZ DE NEGOCIACIÓN DE CAPAS OFICIAL DE KHRONOS (VULKAN LAYER) 🚨 */
-#include <vulkan/vk_layer.h>
-
-// Puntero de despacho dinámico para encadenar las llamadas hacia el driver base del teléfono
-static PFN_vkGetInstanceProcAddr next_vkGetInstanceProcAddr = NULL;
 
 VKAPI_ATTR VkResult VKAPI_CALL vt_vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct) {
     if (pVersionStruct == NULL) return VK_ERROR_INITIALIZATION_FAILED;
 
-    // Validamos que Bannerlator use la versión de cargador de capas estándar
+    // Validamos que Bannerlator use la interfaz de capas estándar
     if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
         pVersionStruct->loaderLayerInterfaceVersion = 2;
-        pVersionStruct->pfnGetInstanceProcAddr = vt_call_vkGetInstanceProcAddr;
-        pVersionStruct->pfnGetDeviceProcAddr = vt_call_vkGetDeviceProcAddr;
+        // 🚨 FIJADO: Vinculamos los nombres reales de despacho sin el prefijo ficticio vt_call_
+        pVersionStruct->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;
         return VK_SUCCESS;
     }
     return VK_ERROR_INITIALIZATION_FAILED;
