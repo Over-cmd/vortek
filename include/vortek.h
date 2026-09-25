@@ -206,8 +206,6 @@ extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 extern VortekContext* context; 
 
-void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
-
 static inline void* findNextVkStructure(void* pNext, VkStructureType type) {
     while (pNext) {
         VkBaseOutStructure* curr = pNext;
