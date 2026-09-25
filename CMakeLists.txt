@@ -6,10 +6,10 @@ message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-set(WARNS "-Wall -Wno-discarded-qualifiers")
+# Usamos la bandera de advertencias compatible con el Clang moderno de Google/NDK
+set(WARNS "-Wall -Wno-ignored-qualifiers")
 
-# 🚨 CORRECCIÓN MÓVIL: Cambiamos -DVK_USE_PLATFORM_XLIB_KHR por -DVK_USE_PLATFORM_ANDROID_KHR
-# Además subimos la optimización a -O3 para máxima velocidad en tu GPU Mali-G52
+# Aplicamos optimización total de velocidad e inyectamos la plataforma Android nativa
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} -DVK_USE_PLATFORM_ANDROID_KHR")
 
 include_directories(include)
@@ -22,4 +22,3 @@ add_library(vulkan_vortek SHARED
     src/arrays.c
     src/descriptor_update_template.c
     src/ring_buffer.c)
-    
