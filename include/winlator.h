@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array)[0])
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
 #define CLAMP(x, low, high) (((x)>(high))?(high):(((x)<(low))?(low):(x)))
@@ -62,21 +62,7 @@ static inline pid_t currentThreadId() {
     while (0)
 #endif
 
-/* ── ALIAS DE COMPATIBILIDAD GRÁFICA MÓVIL (EVITA CHOQUES DE PC) ── */
-#include <vulkan/vulkan.h>
-typedef void* Display;
-typedef unsigned long VisualID;
-typedef void* VkXlibSurfaceCreateInfoKHR;
-typedef void* VkAllocationCallbacks;
-
-#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
-typedef struct VkMemoryMapPlacedInfoEXT {
-    VkStructureType sType;
-    const void* pNext;
-    void* pPlacedAddress;
-} VkMemoryMapPlacedInfoEXT;
-
-// Prototipo nativo para sanar llamadas de socket
+// Firma nativa externa para enlazar llamadas de descriptores de archivos de Winlator
 void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #endif // WINLATOR_H
