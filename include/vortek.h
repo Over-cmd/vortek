@@ -12,7 +12,7 @@
 #include "winlator.h"
 
 #ifdef __ANDROID__
-#define VT_SERVER 1
+#define VT_SERVER 0
 #define VK_NO_PROTOTYPES 1
 #endif
 
