@@ -7,9 +7,10 @@
 
 int serverFd = -1;
 uint16_t maxClientRequestId = 1;
-MemoryPool globalMemoryPool = {0};
+MemoryPool globalMemoryPool = { 0};
 RingBuffer* serverRing = NULL;
 RingBuffer* clientRing = NULL;
+VortekContext* context = NULL; // 🚨 FIJADO: Símbolo físico creado para el enlazador final
 
 static int vortekServerConnect() {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
