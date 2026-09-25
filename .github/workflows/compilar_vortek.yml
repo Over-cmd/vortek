@@ -1,3 +1,46 @@
+name: Compilar Vortek Standalone (wrapper.tzst)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-vortek:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clonar tu repositorio de Vortek
+        uses: actions/checkout@v4
+
+      - name: 2. Localizar y Configurar el Android NDK Preinstalado
+        run: |
+          echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk-bundle" >> $GITHUB_ENV
+          if [ -d "${ANDROID_SDK_ROOT}/ndk" ]; then
+            NDK_VER=$(ls -1 ${ANDROID_SDK_ROOT}/ndk | tail -n 1)
+            echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VER}" >> $GITHUB_ENV
+          fi
+
+      - name: 3. Configurar CMake con el Toolchain del NDK de Android
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake \
+                -DANDROID_ABI=arm64-v8a \
+                -DANDROID_PLATFORM=android-26 \
+                -DCMAKE_BUILD_TYPE=Release \
+                ..
+
+      - name: 4. Compilar el Binario .so de la Capa de Vortek
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: 5. Instalar Herramientas de Empaquetado y Patchelf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd patchelf
+
       - name: 6. Forjar Paquete Esencial de Capa Vulkan (wrapper.tzst)
         run: |
           WRAPPER_SO="build/libvulkan_wrapper.so"
@@ -6,7 +49,7 @@
             echo "-> [Host] ¡Éxito! Estructurando tu paquete híbrido de producción..."
             rm -rf final_pkg wrapper.tzst
             
-            # 🚨 TRUCO MAESTRO: Creamos ambas carpetas para asegurar compatibilidad total
+            # TRUCO MAESTRO: Creamos ambas carpetas para asegurar compatibilidad total
             mkdir -p final_pkg/usr/lib final_pkg/usr/share/vulkan/icd.d final_pkg/usr/share/vulkan/implicit_layer.d
             
             # 1. Copiamos la librería nativa y le asignamos los permisos de ejecución de Android
@@ -17,7 +60,7 @@
             patchelf --set-soname libvulkan_wrapper.so final_pkg/usr/lib/libvulkan_wrapper.so || true
             find final_pkg/usr/lib/ -name "*.so" -exec patchelf --set-rpath '$ORIGIN' {} \; 2>/dev/null || true
             
-            # 3. 🚨 EL ENGAÑO PERFECTO: Escribimos el JSON de capa en su sitio real para el motor de Linux...
+            # 3. EL ENGAÑO PERFECTO: Escribimos el JSON de capa en su sitio real para el motor de Linux...
             cat << 'EOF' > final_pkg/usr/share/vulkan/implicit_layer.d/vortek_layer.json
             {
                 "file_format_version": "1.0.0",
@@ -32,14 +75,14 @@
             }
             EOF
             
-            # 4. 🚨 ...Y escribimos el JSON de Driver plano en icd.d con el formato exacto del original 
+            # 4. ...Y escribimos el JSON de Driver plano en icd.d con el formato exacto del original 
             # Esto es lo que obligará a la interfaz de Bannerlator a leer y poblar las capabilities en la pantalla de instalación
             echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > final_pkg/usr/share/vulkan/icd.d/wrapper_icd.aarch64.json
             echo '{"ICD": {"api_version": "1.3.289", "library_path": "libvulkan_wrapper.so"}, "file_format_version": "1.0.0"}' > final_pkg/usr/share/vulkan/icd.d/wrapper_icd.arm.json
             
             sync && sleep 3
             
-            # Comprimimos la jerarquía completa
+            # Comprimimos la jerarquía completa respetando la carpeta usr limpia
             cd final_pkg && tar -I 'zstd -19 -T0' -cf ../wrapper.tzst usr/ && cd ..
             echo "-> ¡Paquete híbrido forjado con éxito!"
           else
@@ -49,3 +92,9 @@
           
           mkdir -p salida_final
           cp wrapper.tzst salida_final/
+
+      - name: 7. Guardar y Subir el .wrapper.tzst como Artefacto Descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vortek-Layer-Bannerlator
+          path: salida_final/
