@@ -6,8 +6,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <vulkan/vulkan.h>
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array)[0])
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array))
 #define MIN(a, b) (((a)<(b))?(a):(b))
 #define MAX(a, b) (((a)>(b))?(a):(b))
 #define CLAMP(x, low, high) (((x)>(high))?(high):(((x)<(low))?(low):(x)))
@@ -55,14 +56,23 @@ static inline pid_t currentThreadId() {
 #else
 #define println(fmt, ...) \
     do { \
-        char fmtBuf[256] = {0}; \
+        char fmtBuf = {0}; \
         sprintf(fmtBuf, "%s\n", fmt); \
         fprintf(stderr, fmtBuf __VA_OPT__(,) __VA_ARGS__); \
     } \
     while (0)
 #endif
 
-// Firma nativa externa para enlazar llamadas de descriptores de archivos de Winlator
+/* 🚨 SELLO DEFINITIVO DE COMPATIBILIDAD GRÁFICA MÓVIL 🚨 */
+
+// Estructura de memoria exigida por el serializador en la línea 16332
+typedef struct ResourceMemory {
+    VkDeviceMemory memory;
+    VkDeviceSize size;
+    void* pMappedData;
+} ResourceMemory;
+
+// Firma nativa externa para enlazar las llamadas de descriptores de archivos
 void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #endif // WINLATOR_H
