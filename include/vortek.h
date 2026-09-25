@@ -44,18 +44,15 @@ typedef struct VkMemoryMapPlacedInfoEXT {
     void* pPlacedAddress;
 } VkMemoryMapPlacedInfoEXT;
 
-// Estructura de memoria exigida por el serializador en la línea 16332
 typedef struct ResourceMemory {
     VkDeviceMemory memory;
     VkDeviceSize size;
     void* pMappedData;
 } ResourceMemory;
 
-// Firmas nativas básicas de la plataforma X11 de escritorio emuladas para la línea 1900
 typedef void* Display;
 typedef unsigned long VisualID;
 
-// Molde de la superficie X11 simulado con su miembro .window para calmar a Clang
 typedef struct VkXlibSurfaceCreateInfoKHR {
     VkStructureType sType;
     const void* pNext;
@@ -64,7 +61,13 @@ typedef struct VkXlibSurfaceCreateInfoKHR {
     unsigned long window; 
 } VkXlibSurfaceCreateInfoKHR;
 
-// 🚨 DEFINICIÓN CRÍTICA RESTAURADA: Damos de alta MemoryPool con su ArrayList nativo
+/* 🚨 MOLDE NATIVO SANEADO: Declaramos ArrayList antes de meterlo dentro de MemoryPool */
+typedef struct ArrayList {
+    void** elements;
+    int size;
+    int capacity;
+} ArrayList;
+
 typedef struct MemoryPool {
     void* data;
     int size;
@@ -83,9 +86,6 @@ typedef struct CommandBatch {
     int capacity;
     int size;
 } CommandBatch;
-
-// 🚨 FIJADO DEF: Quitamos el duplicado de VortekContext, recv_fds y las variables extern de aquí, 
-// ya que el archivo original de tu repositorio ya los declara nativamente en las líneas 78-89.
 /* ────────────────────────────────────────────────────────────────────── */
 
 #define HEADER_SIZE 8
