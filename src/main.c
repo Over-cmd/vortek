@@ -3,7 +3,11 @@
 #include <errno.h>
 #include <sys/mman.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "vortek.h"
+#include <vulkan/vk_layer.h> // 🚨 FIJADO: Importa la interfaz de capas oficial de Khronos
 
 int serverFd = -1;
 uint16_t maxClientRequestId = 1;
