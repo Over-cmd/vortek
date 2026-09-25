@@ -1,7 +1,7 @@
-name: Compilar Vortek Standalone Ultra-Mali (ARM64)
+name: Compilar Vortek Standalone (ARM64)
 
 on:
-  workflow_dispatch: # Activa el botón verde en la pestaña Actions para disparar la build a mano
+  workflow_dispatch: # Activa el botón de disparo manual en la pestaña Actions
   push:
     branches: [ main ]
 
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. Clonar el repositorio de Vortek
+      - name: 1. Clonar tu repositorio de Vortek
         uses: actions/checkout@v4
 
       - name: 2. Configurar Entorno Java
@@ -22,12 +22,12 @@ jobs:
       - name: 3. Configurar Android SDK y NDK
         uses: android-actions/setup-android@v3
 
-      - name: 4. Instalar el Android NDK Oficial
+      - name: 4. Instalar el Android NDK Oficial de Google
         run: |
           sdkmanager --install "ndk;26.1.10909125"
           echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/26.1.10909125" >> $GITHUB_ENV
 
-      - name: 5. Crear Carpeta de Compilación y Configurar CMake
+      - name: 5. Configurar CMake con el Toolchain del NDK de Android
         run: |
           mkdir build
           cd build
@@ -37,20 +37,21 @@ jobs:
                 -DCMAKE_BUILD_TYPE=Release \
                 ..
 
-      - name: 6. Compilar Binario Nativo de Vortek
+      - name: 6. Compilar el Binario .so de Vortek
         run: |
           cd build
           make -j$(nproc)
 
-      - name: 7. Organizar el Paquete del Driver Gráfico Modificado
+      - name: 7. Organizar el Paquete del Driver Gráfico Interceptor
         run: |
           mkdir -p salida_vortek
           cp build/libvulkan_vortek.so salida_vortek/
-          cp vortek_icd.aarch64.json salida_vortek/
+          if [ -f vortek_icd.aarch64.json ]; then
+            cp vortek_icd.aarch64.json salida_vortek/
+          fi
 
-      - name: 8. Subir el ZIP de Vortek como Artefacto Descargable
+      - name: 8. Guardar y Subir el ZIP como Artefacto Descargable
         uses: actions/upload-artifact@v4
         with:
-          name: Vortek-SuperDriver-Mali-ARM64
+          name: Vortek-Driver-ARM64
           path: salida_vortek/
-          
