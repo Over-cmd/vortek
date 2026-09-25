@@ -1,0 +1,56 @@
+name: Compilar Vortek Standalone Ultra-Mali (ARM64)
+
+on:
+  workflow_dispatch: # Activa el botón verde en la pestaña Actions para disparar la build a mano
+  push:
+    branches: [ main ]
+
+jobs:
+  build-vortek:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clonar el repositorio de Vortek
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar Entorno Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: 3. Configurar Android SDK y NDK
+        uses: android-actions/setup-android@v3
+
+      - name: 4. Instalar el Android NDK Oficial
+        run: |
+          sdkmanager --install "ndk;26.1.10909125"
+          echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/26.1.10909125" >> $GITHUB_ENV
+
+      - name: 5. Crear Carpeta de Compilación y Configurar CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_TOOLCHAIN_FILE=${{ env.ANDROID_NDK_HOME }}/build/cmake/android.toolchain.cmake \
+                -DANDROID_ABI=arm64-v8a \
+                -DANDROID_PLATFORM=android-26 \
+                -DCMAKE_BUILD_TYPE=Release \
+                ..
+
+      - name: 6. Compilar Binario Nativo de Vortek
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: 7. Organizar el Paquete del Driver Gráfico Modificado
+        run: |
+          mkdir -p salida_vortek
+          cp build/libvulkan_vortek.so salida_vortek/
+          cp vortek_icd.aarch64.json salida_vortek/
+
+      - name: 8. Subir el ZIP de Vortek como Artefacto Descargable
+        uses: actions/upload-artifact@v4
+        with:
+          name: Vortek-SuperDriver-Mali-ARM64
+          path: salida_vortek/
+          
