@@ -6,11 +6,14 @@ message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# Usamos la bandera de advertencias compatible con el Clang moderno de Google/NDK
-set(WARNS "-Wall -Wno-ignored-qualifiers")
+# Usamos banderas seguras e inyectamos compatibilidad para que ignore los warnings de punteros const
+set(WARNS "-Wall -Wno-ignored-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
 
-# Aplicamos optimización total de velocidad e inyectamos la plataforma Android nativa
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} -DVK_USE_PLATFORM_ANDROID_KHR")
+# 🚨 EL TRUCO MAESTRO: Mapeamos los identificadores de PC que le faltan al NDK de Android hacia IDs neutros o sus valores reales de la API (1000272000+)
+set(VK_DEFS "-DVK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT=1000272000 -DVK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT=1000272001")
+
+# Aplicamos la optimización de velocidad e inyectamos las definiciones de Vulkan y Android nativo
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} ${VK_DEFS} -DVK_USE_PLATFORM_ANDROID_KHR")
 
 include_directories(include)
 
