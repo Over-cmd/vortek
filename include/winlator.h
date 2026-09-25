@@ -3,7 +3,9 @@
 
 #include <unistd.h>
 #include <syscall.h>
-#include <vulkan/vulkan.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 #define MIN(a, b) (((a)<(b))?(a):(b))
@@ -60,77 +62,21 @@ static inline pid_t currentThreadId() {
     while (0)
 #endif
 
-/* ── INYECCIÓN DE CONTEXTO GRÁFICO GLOBAL PARA VULKAN_CALLS ── */
+/* ── ALIAS DE COMPATIBILIDAD GRÁFICA MÓVIL (EVITA CHOQUES DE PC) ── */
 #include <vulkan/vulkan.h>
+typedef void* Display;
+typedef unsigned long VisualID;
+typedef void* VkXlibSurfaceCreateInfoKHR;
+typedef void* VkAllocationCallbacks;
 
-// 1. Estructuras de listas genéricas reales utilizadas por Vortek
-typedef struct ArrayList {
-    void** elements;
-    int size;
-    int capacity;
-} ArrayList;
-
-// 2. Estructuras base necesarias para el serializador y gestor de memoria
-typedef struct MemoryPool {
-    void* data;
-    size_t size;
-    size_t offset;
-    ArrayList allocationList;
-    int allocationList_elements; 
-} MemoryPool;
-
-typedef struct VortekContext {
-    MemoryPool memoryPool;
-} VortekContext;
-
-// 3. Definición estructural del búfer circular (Anillo de comunicación de Vortek)
-typedef struct RingBuffer {
-    void* data;
-    uint32_t head;
-    uint32_t tail;
-    uint32_t size;
-} RingBuffer;
-
-/* 🚨 MOLDES ESPEJO DE ESCRITORIO DEFINITIVOS:
-   Declaramos las variables con sus nombres virtuales exactos para satisfacer 
-   la asignación directa val->miembro en vortek_serializer.h sin macros de remapeo */
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
+typedef struct VkMemoryMapPlacedInfoEXT {
     VkStructureType sType;
-    void* pNext;
-    VkBool32 memoryMapPlaced;
-    VkBool32 memoryMapRangePlaced;
-    VkBool32 memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+    const void* pNext;
+    void* pPlacedAddress;
+} VkMemoryMapPlacedInfoEXT;
 
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    VkStructureType sType;
-    void* pNext;
-    VkDeviceSize minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-/* 🚨 FIJADO: Nombres corregidos a .data y .size como exige la lógica de munmap() */
-typedef struct MappedMemory {
-    VkDeviceSize allocationSize;
-    void* data;
-    size_t size;
-} MappedMemory;
-
-/* 🚨 FIJADO: Añadido el molde CommandBatch huérfano exigido por la línea 1334 */
-typedef struct CommandBatch {
-    uint32_t capacity;
-    void* buffer;
-    uint32_t size;
-} CommandBatch;
-
-// 4. Declaración de variables globales huérfanas exigidas por las macros vt_send / vt_recv
-extern int serverFd;
-extern MemoryPool globalMemoryPool;
-extern VortekContext* context;
-extern RingBuffer* serverRing;
-extern RingBuffer* clientRing;
-
-// 5. Prototipos de funciones nativas llamadas por las macros del serializador
-// 🚨 FIJADO: Usamos void* success para unificar de forma transparente VkResult e int sin warnings
+// Prototipo nativo para sanar llamadas de socket
 void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
 
 #endif // WINLATOR_H
