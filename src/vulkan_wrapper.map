@@ -1,0 +1,15 @@
+{
+    global:
+        vkGetInstanceProcAddr;
+        vkGetDeviceProcAddr;
+        vkCreateInstance;
+        vkDestroyInstance;
+        vkEnumeratePhysicalDevices;
+        vkCreateDevice;
+        vkDestroyDevice;
+        vkEnumerateInstanceVersion;
+        vkEnumerateInstanceExtensionProperties;
+        vkEnumerateDeviceExtensionProperties;
+        vortekInitOnce;
+    local: *;
+};
