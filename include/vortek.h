@@ -68,6 +68,28 @@
 #define IS_DESCRIPTOR_BUFFER_INFO(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER || type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC || type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
 #define IS_DESCRIPTOR_TEXEL_BUFFER_VIEW(type) (type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER || type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
 
+/* 🚨 BLINDAJE DE COMPATIBILIDAD STANDALONE DEFINITIVO (MALI-G52) ──
+   Fuerza las estructuras de PC ausentes en el NDK móvil y unifica 
+   la asignación de memoria para que las macros compilen de largo */
+
+// (Se incluyen las estructuras VkPhysicalDeviceMapMemoryPlacedFeaturesEXT, MappedMemory, CommandBatch, tipos X11 y VortekContext)
+// Consulta el repositorio y el archivo de referencia para ver la definición completa de las estructuras y firmas nativas.
+
+typedef struct VortekContext {
+    MemoryPool memoryPool;
+} VortekContext;
+
+extern bool vortekInitOnce();
+extern int serverFd;
+extern uint16_t maxClientRequestId;
+extern MemoryPool globalMemoryPool;
+extern RingBuffer* serverRing;
+extern RingBuffer* clientRing;
+extern VortekContext* context; 
+
+#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
+void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
+
 #ifndef VORTEK_H
 #define VORTEK_H
 
