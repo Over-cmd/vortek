@@ -1,7 +1,7 @@
 name: Compilar Vortek Standalone (ARM64)
 
 on:
-  workflow_dispatch: # Activa el botón de disparo manual en la pestaña Actions
+  workflow_dispatch:
   push:
     branches: [ main ]
 
@@ -15,11 +15,8 @@ jobs:
 
       - name: 2. Localizar y Configurar el Android NDK Preinstalado
         run: |
-          # Los servidores de GitHub ya incluyen el NDK original en su sistema de archivos.
-          # Buscamos la ruta real para que CMake se conecte a ella de forma nativa.
           echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk-bundle" >> $GITHUB_ENV
           if [ -d "${ANDROID_SDK_ROOT}/ndk" ]; then
-            # Si existen carpetas numeradas, tomamos la última versión estable disponible
             NDK_VER=$(ls -1 ${ANDROID_SDK_ROOT}/ndk | tail -n 1)
             echo "ANDROID_NDK_HOME=${ANDROID_SDK_ROOT}/ndk/${NDK_VER}" >> $GITHUB_ENV
           fi
@@ -50,5 +47,5 @@ jobs:
       - name: 6. Guardar y Subir el ZIP como Artefacto Descargable
         uses: actions/upload-artifact@v4
         with:
-          name: Vortek-Driver-ARM64
+          name: Vortek-SuperDriver-Mali-ARM64
           path: salida_vortek/
