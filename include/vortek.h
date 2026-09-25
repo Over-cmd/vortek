@@ -64,6 +64,13 @@ typedef struct VkXlibSurfaceCreateInfoKHR {
     unsigned long window; 
 } VkXlibSurfaceCreateInfoKHR;
 
+// 🚨 DEFINICIÓN CRÍTICA RESTAURADA: Damos de alta MemoryPool con su ArrayList nativo
+typedef struct MemoryPool {
+    void* data;
+    int size;
+    ArrayList allocationList;
+} MemoryPool;
+
 /* ── INYECCIÓN NEUTRAL DE COMPATIBILIDAD CLIENTE STANDALONE ── */
 typedef struct MappedMemory {
     void* data;
@@ -89,7 +96,7 @@ extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 extern VortekContext* context; 
 
-void recv_fds(int socket, int* fds, int* numFds, void* success, int count);
+// 🚨 REMOVIDA: Quitamos la firma conflictiva de recv_fds porque socket_utils.h ya la declara
 /* ────────────────────────────────────────────────────────────────────── */
 
 #define HEADER_SIZE 8
