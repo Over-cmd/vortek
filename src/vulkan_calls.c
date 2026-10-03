@@ -2091,14 +2091,13 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
 
     VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures2, (VkPhysicalDevice)&physicalDeviceObject->id, NULL);
     
-    // 🚀 Cambiamos por las macros VOID para que no intente retornar valores
     VT_SEND_CHECKED_VOID(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2);
     VT_RECV_CHECKED_VOID();
     
     vt_unserialize_vkGetPhysicalDeviceFeatures2(NULL, pFeatures, inputBuffer, &globalMemoryPool);
 
     if (pFeatures != NULL) {
-        // Mantenemos tus inyecciones de características personalizadas intactas abajo
+        // Inyección masiva de características físicas en la estructura principal (Vulkan 1.0)
         pFeatures->features.textureCompressionBC = VK_TRUE;
         pFeatures->features.fillModeNonSolid = VK_TRUE;
         pFeatures->features.shaderClipDistance = VK_TRUE;
@@ -2108,7 +2107,7 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         pFeatures->features.shaderInt16 = VK_TRUE;
         pFeatures->features.sampleRateShading = VK_TRUE;
         pFeatures->features.imageCubeArray = VK_TRUE;
-        pFeatures->features.shaderSampledImageArrayDynamicIndexing = VK_TRUE; 
+        pFeatures->features.shaderSampledImageArrayDynamicIndexing = VK_TRUE; // 🌟 Restaurada a Dynamic para VkPhysicalDeviceFeatures
         pFeatures->features.drawIndirectFirstInstance = VK_TRUE;
         pFeatures->features.shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
         pFeatures->features.shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
@@ -2121,22 +2120,19 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         pFeatures->features.shaderStorageImageExtendedFormats = VK_TRUE;
         pFeatures->features.shaderStorageImageWriteWithoutFormat = VK_TRUE;
         pFeatures->features.independentBlend = VK_TRUE;
-        
         pFeatures->features.variableMultisampleRate = VK_TRUE;
         
-        // Iteramos sobre las extensiones dinámicas con casting explícito (void*) para evitar que Clang falle
+        // Iteramos de forma segura sobre las extensiones dinámicas pNext usando casting explícito
         void* ext = (void*)pFeatures->pNext;
         while (ext != NULL) {
-            VkBaseOutStructure* header = (VkBaseOutStructure*)ext;
+            VkBaseOutStructure* header = (VkBaseOutStructure*)ext; // 🌟 Se vuelve a declarar aquí para solucionar la línea 2141
             
             // Forzamos indexación extendida si el juego la solicita vía pNext
             if (header->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES) {
                 VkPhysicalDeviceDescriptorIndexingFeatures* dif = (VkPhysicalDeviceDescriptorIndexingFeatures*)ext;
                 dif->descriptorBindingPartiallyBound = VK_TRUE;
                 dif->runtimeDescriptorArray = VK_TRUE;
-                dif->shaderSampledImageArrayNonUniformIndexing = VK_TRUE; // 🚀 CAMBIADO AQUÍ
-            }
-
+                dif->shaderSampledImageArrayNonUniformIndexing = VK_TRUE; // 🌟 Cambiada a NonUniform aquí para DescriptorIndexingFeatures
             }
             if (header->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT) {
                 VkPhysicalDeviceColorWriteEnableFeaturesEXT* cw = (VkPhysicalDeviceColorWriteEnableFeaturesEXT*)ext;
