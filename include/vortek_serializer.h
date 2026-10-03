@@ -19,12 +19,12 @@ typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertex
 #define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT
 #endif
 
-// 2. Estructura personalizada de Propiedades del Divisor (Soluciona línea 8440)
+// 2. Estructura personalizada de Propiedades del Divisor
 typedef struct VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR {
     uint32_t sType;
     void* pNext;
     uint32_t maxVertexAttribDivisor;
-    uint32_t supportsNonZeroFirstInstance; // Se fuerza la variable exacta que busca el serializador
+    uint32_t supportsNonZeroFirstInstance;
 } VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
 
 #define VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR
@@ -32,7 +32,15 @@ typedef struct VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR {
 #define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR 1000212000
 #endif
 
-// 3. Estructuras huérfanas de MapMemoryPlaced (Soluciona línea 7294)
+// 3. 🚀 NUEVO: Mapeos KHR a EXT para Timestamps Calibrados (Soluciona línea 28712 y 42252)
+typedef VkCalibratedTimestampInfoEXT VkCalibratedTimestampInfoKHR;
+typedef VkTimeDomainEXT VkTimeDomainKHR;
+
+#ifndef VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR
+#define VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_KHR VK_STRUCTURE_TYPE_CALIBRATED_TIMESTAMP_INFO_EXT
+#endif
+
+// 4. Estructuras huérfanas de MapMemoryPlaced
 typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     uint32_t sType;
     void* pNext;
