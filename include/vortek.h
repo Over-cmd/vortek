@@ -272,11 +272,21 @@ static inline int vt_recv(RingBuffer* ring, char** inputBuffer, int* bufferSize,
 #ifndef PARCHE_MAP_MEMORY_FIX
 #define PARCHE_MAP_MEMORY_FIX
 
+// 1. Estructura de Propiedades (Ya solucionada antes)
 typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     uint32_t sType;
     void* pNext;
-    uint64_t minPlacedMemoryMapAlignment; // Cambiado a 64-bit para coincidir con VkDeviceSize
+    uint64_t minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+// 2. 🚀 NUEVA: Estructura de Características que pide la línea 9227
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    uint32_t sType;
+    void* pNext;
+    uint32_t memoryMapPlaced;      // Equivalente a VkBool32
+    uint32_t memoryMapRangePlaced; // Equivalente a VkBool32
+    uint32_t memoryUnmapPlaced;    // Complementaria habitual de esta extensión
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
 
 #endif
 // =================================================================
