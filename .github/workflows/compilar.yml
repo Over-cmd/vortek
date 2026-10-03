@@ -8,25 +8,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Descargar Código Fuente
+      - name: Descargar Código Fuente de Vortek
         uses: actions/checkout@v4
 
       - name: Instalar Ninja y Herramientas
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build wget unzip
+          sudo apt-get install -y ninja-build
 
-      - name: Descargar de forma Automática todos los Archivos y Cabeceras Faltantes
+      - name: Clonar de forma Nativa las Cabeceras Oficiales de Vulkan Faltantes
         run: |
-          # 1. Creamos la carpeta para las cabeceras nativas de Vulkan de Android
+          # Creamos el directorio necesario
           mkdir -p include/vulkan
           
-          # 2. Descargamos las cabeceras ICD usando el dominio RAW correcto de GitHub
-          wget https://githubusercontent.com -O include/vulkan/vk_icd.h
-          wget https://githubusercontent.com -O include/vulkan/vk_layer.h
+          # 🚀 URL CORREGIDA Y COMPLETA AQUÍ:
+          git clone --depth 1 -b v1.3.268 https://github.com/KhronosGroup/Vulkan-Headers.git khronos_headers
           
-          # 3. Descargamos el núcleo de Vulkan v1.3.268 para dar soporte nativo a MapMemoryPlaced y divisores
-          wget https://githubusercontent.com -O include/vulkan/vulkan_core.h
+          # Copiamos exactamente todos los archivos .h que faltan a la carpeta del proyecto
+          cp khronos_headers/include/vulkan/*.h include/vulkan/
+          
+          # Limpiamos la carpeta temporal
+          rm -rf khronos_headers
 
       - name: Configurar e Instalar NDK r26b Oficial de Google
         uses: nttld/setup-ndk@v1
