@@ -2,10 +2,11 @@
 #define VORTEK_SERIALIZER_H
 
 // =================================================================
-// 🚀 ENLACE DE COMPATIBILIDAD DIVISORES KHR -> EXT PARA EL NDK r26b
+// 🚀 PARCHE COMPLETO DE COMPATIBILIDAD VULKAN PARA EL NDK r26b
 // =================================================================
 #include <vulkan/vulkan.h>
 
+// 1. Mapeos KHR a EXT para Divisores de Vértices (Solucionado antes)
 typedef VkVertexInputBindingDivisorDescriptionEXT VkVertexInputBindingDivisorDescriptionKHR;
 typedef VkPipelineVertexInputDivisorStateCreateInfoEXT VkPipelineVertexInputDivisorStateCreateInfoKHR;
 typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
@@ -16,6 +17,29 @@ typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertex
 
 #ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR
 #define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT
+#endif
+
+// 2. Estructuras huérfanas de MapMemoryPlaced que pide el serializador
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    uint32_t sType;
+    void* pNext;
+    uint64_t minPlacedMemoryMapAlignment;
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
+    uint32_t sType;
+    void* pNext;
+    uint32_t memoryMapPlaced;
+    uint32_t memoryMapRangePlaced;
+    uint32_t memoryUnmapReserve;
+} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
+
+#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT 1000272000
+#endif
+
+#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT 1000272001
 #endif
 // =================================================================
 
