@@ -9,7 +9,7 @@
 #include "vulkan/vk_layer.h"
 
 // =================================================================
-// 🚀 PARCHE DE ENLAZADO: COMPARTIR VARIABLES GLOBALES CON MAIN.C
+// 🚀 PARCHE MAESTRO DE ENLAZADO Y ESTRUCTURAS FINALES
 // =================================================================
 extern int serverFd;
 extern uint16_t maxClientRequestId;
@@ -17,12 +17,37 @@ extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
-// Truco estructural: simulamos el objeto 'context' usando la estructura de globalMemoryPool
+// 1. Truco estructural para simular la variable 'context'
 typedef struct { MemoryPool memoryPool; } VortekContextFake;
 static VortekContextFake* context = (VortekContextFake*)&globalMemoryPool;
 
-// Redefinimos temporalmente VT_RETURN para las funciones 'void' que no devuelven nada
-#define VT_RETURN_VOID
+// 2. Estructura que le faltaba a las funciones vkMapMemory de la línea 451
+typedef struct MappedMemory {
+    void* data;
+    uint64_t size;
+    uint64_t allocationSize;
+} MappedMemory;
+
+// 3. Redefinición limpia de macros de envío para funciones 'void' (Evita error de return value)
+#undef VT_SEND_CHECKED
+#define VT_SEND_CHECKED(requestCode, ...) \
+    { \
+        int bytesSent = vt_send(serverRing, requestCode, outputBuffer, bufferSize); \
+        if (bytesSent <= 0) { \
+            VT_CALL_UNLOCK(); \
+            return; \
+        } \
+    }
+
+#undef VT_RECV_CHECKED
+#define VT_RECV_CHECKED(...) \
+    { \
+        result = vt_recv(clientRing, &inputBuffer, NULL, &globalMemoryPool); \
+        if (result < 0) { \
+            VT_CALL_UNLOCK(); \
+            return; \
+        } \
+    }
 // =================================================================
 
 #define MSG_DEBUG_UNIMPLEMENTED_VKCALL "vortek: unimplemented call %s\n"
