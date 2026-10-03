@@ -292,4 +292,6 @@ typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
 #ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT
 #define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT 1000272000
 #endif
+
+#endif
 // =================================================================
