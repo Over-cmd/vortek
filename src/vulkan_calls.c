@@ -28,10 +28,10 @@ typedef struct MappedMemory {
     uint64_t allocationSize;
 } MappedMemory;
 
-// Estructura requerida por CommandBuffers (Línea 1464)
+// Estructura requerida por CommandBuffers (🌟 Corregida con 'size')
 typedef struct CommandBatch {
     uint32_t capacity;
-    uint32_t count;
+    uint32_t size;      // Cambiado de 'count' a 'size' para que coincida con el macro original
     void* buffer;
 } CommandBatch;
 
