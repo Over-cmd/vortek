@@ -18,16 +18,18 @@ jobs:
 
       - name: Clonar de forma Nativa las Cabeceras Oficiales de Vulkan Faltantes
         run: |
-          # Creamos el directorio necesario
+          # 1. Creamos las carpetas estructuradas que pide el núcleo de Vulkan
           mkdir -p include/vulkan
+          mkdir -p include/vk_video
           
-          # 🚀 URL CORREGIDA Y COMPLETA AQUÍ:
-          git clone --depth 1 -b v1.3.268 https://github.com/KhronosGroup/Vulkan-Headers.git khronos_headers
+          # 2. Clonamos de forma temporal el repositorio oficial completo de Khronos
+          git clone --depth 1 -b v1.3.268 https://github.com khronos_headers
           
-          # Copiamos exactamente todos los archivos .h que faltan a la carpeta del proyecto
+          # 3. Copiamos los archivos base de Vulkan y las carpetas de códecs de video necesarias
           cp khronos_headers/include/vulkan/*.h include/vulkan/
+          cp khronos_headers/include/vk_video/*.h include/vk_video/
           
-          # Limpiamos la carpeta temporal
+          # 4. Limpiamos la carpeta temporal
           rm -rf khronos_headers
 
       - name: Configurar e Instalar NDK r26b Oficial de Google
