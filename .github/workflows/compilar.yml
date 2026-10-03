@@ -11,21 +11,24 @@ jobs:
       - name: Descargar Código Fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Ninja
+      - name: Instalar Ninja y Herramientas
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build wget unzip
 
-      - name: Descargar e Inyectar Cabeceras de Vulkan Faltantes (vk_icd.h y vk_layer.h)
+      - name: Descargar de forma Automática todos los Archivos y Cabeceras Faltantes
         run: |
-          # Creamos la carpeta interna donde el código de Vortek busca las cabeceras de Vulkan
+          # 1. Creamos la carpeta para las cabeceras nativas de Vulkan de Android
           mkdir -p include/vulkan
           
-          # Descargamos los archivos reales directamente desde el repositorio oficial de Khronos
+          # 2. Descargamos las cabeceras ICD usando el dominio RAW correcto de GitHub
           wget https://githubusercontent.com -O include/vulkan/vk_icd.h
           wget https://githubusercontent.com -O include/vulkan/vk_layer.h
+          
+          # 3. Descargamos el núcleo de Vulkan v1.3.268 para dar soporte nativo a MapMemoryPlaced y divisores
+          wget https://githubusercontent.com -O include/vulkan/vulkan_core.h
 
-      - name: Configurar e Instalar NDK r26b Puro de Google
+      - name: Configurar e Instalar NDK r26b Oficial de Google
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26b
