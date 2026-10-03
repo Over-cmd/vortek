@@ -16,11 +16,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      - name: Eliminar NDK 27 global del sistema
-        run: |
-          # Erradicamos por completo el NDK 27 de la máquina virtual
-          sudo rm -rf /usr/local/lib/android/sdk/ndk/27*
-
       - name: Configurar e Instalar NDK r26b Puro de Google
         uses: nttld/setup-ndk@v1
         with:
@@ -29,9 +24,9 @@ jobs:
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
-          # Forzamos a CMake a leer la ruta del NDK r26b usando la variable global $ANDROID_NDK_ROOT
+          # Declaramos la ruta absoluta de instalación del r26b directamente en el comando para saltarnos el bloqueo
           cmake -G Ninja \
-            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-24 \
             -DCMAKE_BUILD_TYPE=Release \
