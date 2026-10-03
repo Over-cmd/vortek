@@ -23,7 +23,7 @@ jobs:
           mkdir -p include/vk_video
           
           # 2. Clonamos de forma temporal el repositorio oficial completo de Khronos
-          git clone --depth 1 -b v1.3.268 https://github.com khronos_headers
+          git clone --depth 1 -b v1.3.268 https://github.com/KhronosGroup/Vulkan-Headers.git khronos_headers
           
           # 3. Copiamos los archivos base de Vulkan y las carpetas de códecs de video necesarias
           cp khronos_headers/include/vulkan/*.h include/vulkan/
