@@ -11,16 +11,15 @@ jobs:
       - name: Descargar Código Fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Dependencias del Sistema y Ninja
+      - name: Instalar Ninja
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build wget unzip
+          sudo apt-get install -y ninja-build
 
-      - name: Descargar e Instalar Android NDK r26b de forma Directa
-        run: |
-          wget https://google.com -O ndk.zip
-          unzip -q ndk.zip
-          echo "ANDROID_NDK_ROOT=$GITHUB_WORKSPACE/android-ndk-r26b" >> $GITHUB_ENV
+      - name: Configurar Android NDK Oficial (r26b)
+        uses: nndoki/setup-ndk@v2
+        with:
+          ndk-version: r26b
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
