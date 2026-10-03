@@ -9,7 +9,7 @@
 #include "vulkan/vk_layer.h"
 
 // =================================================================
-// 🚀 PARCHE MAESTRO COMPLETO DE ENLAZADO Y ESTRUCTURAS (NDK r26b)
+// 🚀 PARCHE MAESTRO DEFINITIVO DE COMPATIBILIDAD GRÁFICA (NDK r26b)
 // =================================================================
 extern int serverFd;
 extern uint16_t maxClientRequestId;
@@ -17,23 +17,48 @@ extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
-// Simulación del objeto 'context' para el serializador
+// Inicialización externa
+extern bool vortekInitOnce();
+
+// Simulación del objeto 'context'
 typedef struct { MemoryPool memoryPool; } VortekContextFake;
 static VortekContextFake* context = (VortekContextFake*)&globalMemoryPool;
 
-// Estructura requerida por vkMapMemory
+// Estructuras de asignación de memoria
 typedef struct MappedMemory {
     void* data;
     uint64_t size;
     uint64_t allocationSize;
 } MappedMemory;
 
-// Estructura requerida por CommandBuffers (🌟 Corregida con 'size')
 typedef struct CommandBatch {
     uint32_t capacity;
-    uint32_t size;      // Cambiado de 'count' a 'size' para que coincida con el macro original
+    uint32_t size;
     void* buffer;
 } CommandBatch;
+
+// Tipos falsos para anular los errores de funciones de PC (Xlib)
+typedef void* Display;
+typedef unsigned long VisualID;
+typedef void* VkXlibSurfaceCreateInfoKHR;
+
+// Estructura oculta de memoria colocada (Línea 3326)
+typedef struct VkMemoryMapPlacedInfoEXT {
+    uint32_t sType;
+    const void* pNext;
+    void* pPlacedAddress;
+} VkMemoryMapPlacedInfoEXT;
+#ifndef VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT
+#define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
+#endif
+
+// Parche ortográfico para corregir la variable Descriptor Indexing de Features2 (Línea 2106)
+#define shaderSampledImageArrayDynamicIndexing shaderSampledImageArrayNonUniformIndexing
+
+// Identificador faltante en request_codes (Línea 2065)
+#ifndef REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2
+#define REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2 1000212001
+#endif
 
 // Macros modificadas exclusivas para funciones VOID (Evita errores de redefinición y retorno de valores)
 #define VT_SEND_CHECKED_VOID(requestCode) \
