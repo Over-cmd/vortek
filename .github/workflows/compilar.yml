@@ -14,7 +14,16 @@ jobs:
       - name: Instalar Ninja
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo apt-get install -y ninja-build wget unzip
+
+      - name: Descargar e Inyectar Cabeceras de Vulkan Faltantes (vk_icd.h y vk_layer.h)
+        run: |
+          # Creamos la carpeta interna donde el código de Vortek busca las cabeceras de Vulkan
+          mkdir -p include/vulkan
+          
+          # Descargamos los archivos reales directamente desde el repositorio oficial de Khronos
+          wget https://githubusercontent.com -O include/vulkan/vk_icd.h
+          wget https://githubusercontent.com -O include/vulkan/vk_layer.h
 
       - name: Configurar e Instalar NDK r26b Puro de Google
         uses: nttld/setup-ndk@v1
@@ -24,7 +33,6 @@ jobs:
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
-          # Declaramos la ruta absoluta de instalación del r26b directamente en el comando para saltarnos el bloqueo
           cmake -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/26.1.10909125/build/cmake/android.toolchain.cmake \
             -DANDROID_ABI=arm64-v8a \
