@@ -1,60 +1,6 @@
 #ifndef VORTEK_SERIALIZER_H
 #define VORTEK_SERIALIZER_H
 
-// =================================================================
-// 🚀 PARCHE MAESTRO DEFINITIVO PARA EL SERIALIZADOR (NDK r26b)
-// =================================================================
-#include <vulkan/vulkan.h>
-
-// 1. Mapeos KHR a EXT para Divisores de Vértices
-typedef VkVertexInputBindingDivisorDescriptionEXT VkVertexInputBindingDivisorDescriptionKHR;
-typedef VkPipelineVertexInputDivisorStateCreateInfoEXT VkPipelineVertexInputDivisorStateCreateInfoKHR;
-typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
-
-#ifndef VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR
-#define VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT
-#endif
-
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT
-#endif
-
-// 2. Estructura personalizada de Propiedades del Divisor para evitar errores en la línea 8445
-typedef struct VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR {
-    uint32_t sType;
-    void* pNext;
-    uint32_t maxVertexAttribDivisor;
-    uint32_t supportsNonZeroFirstInstance; // Se fuerza la variable exacta que busca el serializador
-} VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
-
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR 1000212000
-#endif
-
-// 3. Estructuras huérfanas de MapMemoryPlaced
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    uint32_t sType;
-    void* pNext;
-    uint64_t minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
-    uint32_t sType;
-    void* pNext;
-    uint32_t memoryMapPlaced;
-    uint32_t memoryMapRangePlaced;
-    uint32_t memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT 1000272000
-#endif
-
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT 1000272001
-#endif
-// =================================================================
-
 #include "vortek.h"
 
 #ifdef VT_SERVER
