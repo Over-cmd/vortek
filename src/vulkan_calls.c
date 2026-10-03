@@ -259,8 +259,46 @@ VkResult vt_call_vkEnumerateInstanceExtensionProperties(const char* pLayerName, 
     VT_SERIALIZE_CMD(vkEnumerateInstanceExtensionProperties, NULL, pPropertyCount, NULL);
     VT_SEND_CHECKED(REQUEST_CODE_VK_ENUMERATE_INSTANCE_EXTENSION_PROPERTIES, VT_RETURN);
     VT_RECV_CHECKED(VT_RETURN);
-
     vt_unserialize_vkEnumerateInstanceExtensionProperties(NULL, pPropertyCount, pProperties, inputBuffer, &globalMemoryPool);
+
+    // =================================================================
+    // 🚀 INYECCIÓN MASIVA DE EXTENSIONES DE INSTANCIA DE VULKAN
+    // =================================================================
+    if (pProperties != NULL) {
+        uint32_t count = *pPropertyCount;
+
+        // Extensiones fundamentales de propiedades del dispositivo (Esencial para Vulkan 1.1+)
+        strncpy(pProperties[count].extensionName, "VK_KHR_get_physical_device_properties2", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 2; count++;
+
+        // Extensiones para el dibujado de superficies y ventanas nativas
+        strncpy(pProperties[count].extensionName, "VK_KHR_surface", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 25; count++;
+
+        strncpy(pProperties[count].extensionName, "VK_KHR_android_surface", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 6; count++;
+
+        // Soporte para capacidades externas de memoria e interoperabilidad
+        strncpy(pProperties[count].extensionName, "VK_KHR_external_memory_capabilities", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 1; count++;
+
+        strncpy(pProperties[count].extensionName, "VK_KHR_external_semaphore_capabilities", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 1; count++;
+
+        strncpy(pProperties[count].extensionName, "VK_KHR_external_fence_capabilities", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 1; count++;
+
+        // Requerido a veces por capas de traducción avanzadas
+        strncpy(pProperties[count].extensionName, "VK_EXT_debug_report", VK_MAX_EXTENSION_NAME_SIZE);
+        pProperties[count].specVersion = 10; count++;
+
+        *pPropertyCount = count;
+    } else {
+        // Añadimos las 7 extensiones forzadas al conteo inicial si la app solo pregunta el tamaño
+        *pPropertyCount += 7;
+    }
+    // =================================================================
+
     VT_CALL_UNLOCK();
     return (VkResult)result;
 }
