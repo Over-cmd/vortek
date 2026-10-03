@@ -2045,8 +2045,8 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         
         pFeatures->features.variableMultisampleRate = VK_FALSE;
         
-        // Iteramos sobre las extensiones dinámicas pNext vinculadas de Vulkan 1.1/1.2/1.3
-        void* ext = pFeatures->pNext;
+        // Iteramos sobre las extensiones dinámicas con casting explícito (void*) para evitar que Clang falle
+        void* ext = (void*)pFeatures->pNext;
         while (ext != NULL) {
             VkBaseOutStructure* header = (VkBaseOutStructure*)ext;
             
@@ -2061,7 +2061,7 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
                 VkPhysicalDeviceColorWriteEnableFeaturesEXT* cw = (VkPhysicalDeviceColorWriteEnableFeaturesEXT*)ext;
                 cw->colorWriteEnable = VK_TRUE;
             }
-            ext = header->pNext;
+            ext = (void*)header->pNext;
         }
     }
 
