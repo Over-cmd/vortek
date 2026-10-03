@@ -16,6 +16,13 @@ extern uint16_t maxClientRequestId;
 extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
+
+// Truco estructural: simulamos el objeto 'context' usando la estructura de globalMemoryPool
+typedef struct { MemoryPool memoryPool; } VortekContextFake;
+static VortekContextFake* context = (VortekContextFake*)&globalMemoryPool;
+
+// Redefinimos temporalmente VT_RETURN para las funciones 'void' que no devuelven nada
+#define VT_RETURN_VOID
 // =================================================================
 
 #define MSG_DEBUG_UNIMPLEMENTED_VKCALL "vortek: unimplemented call %s\n"
