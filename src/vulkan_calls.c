@@ -8,6 +8,16 @@
 #include "vulkan/vk_icd.h"
 #include "vulkan/vk_layer.h"
 
+// =================================================================
+// 🚀 PARCHE DE ENLAZADO: COMPARTIR VARIABLES GLOBALES CON MAIN.C
+// =================================================================
+extern int serverFd;
+extern uint16_t maxClientRequestId;
+extern MemoryPool globalMemoryPool;
+extern RingBuffer* serverRing;
+extern RingBuffer* clientRing;
+// =================================================================
+
 #define MSG_DEBUG_UNIMPLEMENTED_VKCALL "vortek: unimplemented call %s\n"
 
 struct VulkanFunc {
