@@ -272,21 +272,24 @@ static inline int vt_recv(RingBuffer* ring, char** inputBuffer, int* bufferSize,
 #ifndef PARCHE_MAP_MEMORY_FIX
 #define PARCHE_MAP_MEMORY_FIX
 
-// 1. Estructura de Propiedades (Ya solucionada antes)
+// 1. Estructura de Propiedades (Ya solucionada)
 typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     uint32_t sType;
     void* pNext;
     uint64_t minPlacedMemoryMapAlignment;
 } VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
 
-// 2. 🚀 NUEVA: Estructura de Características que pide la línea 9227
+// 2. CORREGIDA: Estructura de Características con la variable exacta que busca el compilador
 typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
     uint32_t sType;
     void* pNext;
-    uint32_t memoryMapPlaced;      // Equivalente a VkBool32
-    uint32_t memoryMapRangePlaced; // Equivalente a VkBool32
-    uint32_t memoryUnmapPlaced;    // Complementaria habitual de esta extensión
+    uint32_t memoryMapPlaced;
+    uint32_t memoryMapRangePlaced;
+    uint32_t memoryUnmapReserve; // 🌟 Cambiado para coincidir exactamente con el serializador
 } VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
 
+// 3. 🚀 NUEVO: Definición del Identificador de Estructura faltante de Vulkan
+#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT 1000272000
 #endif
 // =================================================================
