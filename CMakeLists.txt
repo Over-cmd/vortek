@@ -5,7 +5,9 @@ message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 set(WARNS "-Wall -Wno-discarded-qualifiers")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 ${WARNS} -DVK_USE_PLATFORM_XLIB_KHR")
+
+# 🔥 CAMBIAMOS XLIB_KHR POR ANDROID_KHR PARA QUE COMPILE EN LA TABLET
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} -DVK_USE_PLATFORM_ANDROID_KHR")
 
 include_directories(include)
 
@@ -17,3 +19,4 @@ add_library(vulkan_vortek SHARED
             src/arrays.c
             src/descriptor_update_template.c
             src/ring_buffer.c)
+            
