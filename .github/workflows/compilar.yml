@@ -1,7 +1,7 @@
 name: Compilar Cliente Vortek Custom
 
 on:
-  workflow_dispatch: # Permite activar la compilación manualmente con un botón
+  workflow_dispatch:
 
 jobs:
   build:
@@ -11,15 +11,16 @@ jobs:
       - name: Descargar Código Fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Ninja (Compilador rápido)
+      - name: Instalar Ninja
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      - name: Configurar Android NDK Oficial (r26b)
+      - name: Configurar Android NDK r26b Oficial
         uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26b
+          link-to-sdk: true # Forzar a que sobrescriba el NDK global del runner
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
