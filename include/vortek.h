@@ -266,37 +266,3 @@ static inline int vt_recv(RingBuffer* ring, char** inputBuffer, int* bufferSize,
 
 #endif // Cerramos el endif original de vortek.h de forma limpia primero
 
-// =================================================================
-// 🚀 PARCHE MAESTRO PARA EL SERIALIZADOR DE VULKAN EN NDK MODERNOS
-// =================================================================
-#ifndef PARCHE_MAP_MEMORY_FIX
-#define PARCHE_MAP_MEMORY_FIX
-
-// 1. Estructura de Propiedades
-typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
-    uint32_t sType;
-    void* pNext;
-    uint64_t minPlacedMemoryMapAlignment;
-} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
-
-// 2. Estructura de Características
-typedef struct VkPhysicalDeviceMapMemoryPlacedFeaturesEXT {
-    uint32_t sType;
-    void* pNext;
-    uint32_t memoryMapPlaced;
-    uint32_t memoryMapRangePlaced;
-    uint32_t memoryUnmapReserve;
-} VkPhysicalDeviceMapMemoryPlacedFeaturesEXT;
-
-// 3. Identificador de la estructura de Características (Solucionado antes)
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_FEATURES_EXT 1000272000
-#endif
-
-// 4. 🚀 NUEVO: Identificador de la estructura de Propiedades (Línea 14644)
-#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT
-#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAP_MEMORY_PLACED_PROPERTIES_EXT 1000272001
-#endif
-
-#endif // Fin de nuestro parche
-// =================================================================
