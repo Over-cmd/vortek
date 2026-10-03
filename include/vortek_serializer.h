@@ -2,11 +2,11 @@
 #define VORTEK_SERIALIZER_H
 
 // =================================================================
-// 🚀 PARCHE COMPLETO DE COMPATIBILIDAD VULKAN PARA EL NDK r26b
+// 🚀 PARCHE MAESTRO DEFINITIVO PARA EL SERIALIZADOR (NDK r26b)
 // =================================================================
 #include <vulkan/vulkan.h>
 
-// 1. Mapeos KHR a EXT para Divisores de Vértices (Solucionado antes)
+// 1. Mapeos KHR a EXT para Divisores de Vértices
 typedef VkVertexInputBindingDivisorDescriptionEXT VkVertexInputBindingDivisorDescriptionKHR;
 typedef VkPipelineVertexInputDivisorStateCreateInfoEXT VkPipelineVertexInputDivisorStateCreateInfoKHR;
 typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR;
@@ -19,7 +19,19 @@ typedef VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT VkPhysicalDeviceVertex
 #define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_FEATURES_EXT
 #endif
 
-// 2. Estructuras huérfanas de MapMemoryPlaced que pide el serializador
+// 2. Estructura personalizada de Propiedades del Divisor para evitar errores en la línea 8445
+typedef struct VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR {
+    uint32_t sType;
+    void* pNext;
+    uint32_t maxVertexAttribDivisor;
+    uint32_t supportsNonZeroFirstInstance; // Se fuerza la variable exacta que busca el serializador
+} VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR;
+
+#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_ATTRIBUTE_DIVISOR_PROPERTIES_KHR 1000212000
+#endif
+
+// 3. Estructuras huérfanas de MapMemoryPlaced
 typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
     uint32_t sType;
     void* pNext;
