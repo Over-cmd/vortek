@@ -247,8 +247,42 @@ VkResult vt_call_vkEnumerateDeviceExtensionProperties(VkPhysicalDevice physicalD
     VT_SERIALIZE_CMD(vkEnumerateDeviceExtensionProperties, (VkPhysicalDevice)&physicalDeviceObject->id, NULL, pPropertyCount, NULL);
     VT_SEND_CHECKED(REQUEST_CODE_VK_ENUMERATE_DEVICE_EXTENSION_PROPERTIES, VT_RETURN);
     VT_RECV_CHECKED(VT_RETURN);
-
     vt_unserialize_vkEnumerateDeviceExtensionProperties(NULL, NULL, pPropertyCount, pProperties, inputBuffer, &globalMemoryPool);
+
+    if (pProperties != NULL) {
+        uint32_t count = *pPropertyCount;
+
+        strncpy(pProperties[count].extensionName, "VK_EXT_vertex_attribute_divisor", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 3; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_vertex_attribute_divisor", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_extended_dynamic_state2", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_vertex_input_dynamic_state", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_sampler_ycbcr_conversion", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 14; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_shader_draw_parameters", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_filter_cubic", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 3; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_image_robustness", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_blend_operation_advanced", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 2; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_discard_rectangles", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_sample_locations", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_multiview", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_push_descriptor", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 2; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_custom_border_color", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 12; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_private_data", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_memory_budget", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_map_memory2", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_separate_depth_stencil_layouts", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_create_renderpass2", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_depth_stencil_resolve", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_image_format_list", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_color_write_enable", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_KHR_shader_float_controls", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 4; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_shader_subgroup_ballot", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+        strncpy(pProperties[count].extensionName, "VK_EXT_texture_compression_astc_hdr", VK_MAX_EXTENSION_NAME_SIZE); pProperties[count].specVersion = 1; count++;
+
+        *pPropertyCount = count;
+    } else {
+        *pPropertyCount += 25;
+    }
+
     VT_CALL_UNLOCK();
     return (VkResult)result;
 }
