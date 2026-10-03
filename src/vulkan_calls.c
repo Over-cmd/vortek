@@ -37,12 +37,18 @@ typedef struct CommandBatch {
     void* buffer;
 } CommandBatch;
 
-// Tipos falsos para anular los errores de funciones de PC (Xlib)
+// Tipos para funciones de PC (Xlib) - Estructura real para solucionar pCreateInfo->window
 typedef void* Display;
 typedef unsigned long VisualID;
-typedef void* VkXlibSurfaceCreateInfoKHR;
+typedef struct VkXlibSurfaceCreateInfoKHR {
+    uint32_t sType;
+    const void* pNext;
+    uint32_t flags;
+    Display* dpy;
+    unsigned long window; // 🌟 Esto soluciona el error de la línea 2076
+} VkXlibSurfaceCreateInfoKHR;
 
-// Estructura oculta de memoria colocada (Línea 3326)
+// Estructura oculta de memoria colocada
 typedef struct VkMemoryMapPlacedInfoEXT {
     uint32_t sType;
     const void* pNext;
@@ -52,15 +58,12 @@ typedef struct VkMemoryMapPlacedInfoEXT {
 #define VK_STRUCTURE_TYPE_MEMORY_MAP_PLACED_INFO_EXT 1000272002
 #endif
 
-// Parche ortográfico para corregir la variable Descriptor Indexing de Features2 (Línea 2106)
-#define shaderSampledImageArrayDynamicIndexing shaderSampledImageArrayNonUniformIndexing
-
-// Identificador faltante en request_codes (Línea 2065)
+// Identificador faltante en request_codes
 #ifndef REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2
 #define REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2 1000212001
 #endif
 
-// Macros modificadas exclusivas para funciones VOID (Evita errores de redefinición y retorno de valores)
+// Macros modificadas exclusivas para funciones VOID
 #define VT_SEND_CHECKED_VOID(requestCode) \
     { \
         int bytesSent = vt_send(serverRing, requestCode, outputBuffer, bufferSize); \
@@ -2105,7 +2108,7 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         pFeatures->features.shaderInt16 = VK_TRUE;
         pFeatures->features.sampleRateShading = VK_TRUE;
         pFeatures->features.imageCubeArray = VK_TRUE;
-        pFeatures->features.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+        pFeatures->features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
         pFeatures->features.drawIndirectFirstInstance = VK_TRUE;
         pFeatures->features.shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
         pFeatures->features.shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
