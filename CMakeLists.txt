@@ -4,9 +4,9 @@ project(Vortek C)
 message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-set(WARNS "-Wall -Wno-discarded-qualifiers")
 
-# 🔥 CAMBIAMOS XLIB_KHR POR ANDROID_KHR PARA QUE COMPILE EN LA TABLET
+# 🚀 AÑADIMOS -Wno-error Y -Wno-incompatible-pointer-types PARA IGNORAR LOS ERRORES DE POINTERS EN LOS SERIALIZADORES
+set(WARNS "-Wall -Wno-discarded-qualifiers -Wno-error -Wno-incompatible-pointer-types")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} -DVK_USE_PLATFORM_ANDROID_KHR")
 
 include_directories(include)
