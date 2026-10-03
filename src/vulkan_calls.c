@@ -9,7 +9,7 @@
 #include "vulkan/vk_layer.h"
 
 // =================================================================
-// 🚀 PARCHE MAESTRO DE ENLAZADO Y ESTRUCTURAS FINALES
+// 🚀 PARCHE DEFINITIVO DE VARIABLES Y ENLAZADO (NDK r26b)
 // =================================================================
 extern int serverFd;
 extern uint16_t maxClientRequestId;
@@ -17,37 +17,21 @@ extern MemoryPool globalMemoryPool;
 extern RingBuffer* serverRing;
 extern RingBuffer* clientRing;
 
-// 1. Truco estructural para simular la variable 'context'
+// Mapeo estructural del contexto que piden las macros
 typedef struct { MemoryPool memoryPool; } VortekContextFake;
 static VortekContextFake* context = (VortekContextFake*)&globalMemoryPool;
 
-// 2. Estructura que le faltaba a las funciones vkMapMemory de la línea 451
+// Estructura requerida por vkMapMemory
 typedef struct MappedMemory {
     void* data;
     uint64_t size;
     uint64_t allocationSize;
 } MappedMemory;
 
-// 3. Redefinición limpia de macros de envío para funciones 'void' (Evita error de return value)
-#undef VT_SEND_CHECKED
-#define VT_SEND_CHECKED(requestCode, ...) \
-    { \
-        int bytesSent = vt_send(serverRing, requestCode, outputBuffer, bufferSize); \
-        if (bytesSent <= 0) { \
-            VT_CALL_UNLOCK(); \
-            return; \
-        } \
-    }
-
-#undef VT_RECV_CHECKED
-#define VT_RECV_CHECKED(...) \
-    { \
-        result = vt_recv(clientRing, &inputBuffer, NULL, &globalMemoryPool); \
-        if (result < 0) { \
-            VT_CALL_UNLOCK(); \
-            return; \
-        } \
-    }
+// Redefinimos un bypass exclusivo de retorno vacío SOLO para la función void de Features
+#define VT_BYPASS_VOID_FEATURES() \
+    int result = 0; \
+    char* inputBuffer = NULL;
 // =================================================================
 
 #define MSG_DEBUG_UNIMPLEMENTED_VKCALL "vortek: unimplemented call %s\n"
@@ -178,18 +162,20 @@ void vt_call_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice
 }
 
 void vt_call_vkGetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures* pFeatures) {
+    VT_BYPASS_VOID_FEATURES(); // 🚀 Inyecta esto aquí arriba para declarar las variables locales necesarias
+    
     VT_CALL_LOCK();
     VkObject* physicalDeviceObject = VkObject_fromHandle(physicalDevice);
 
     VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures, (VkPhysicalDevice)&physicalDeviceObject->id, NULL);
+    
+    // Al usar las macros originales, no modificamos vortek.h y todo compila nativo
     VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES, VT_RETURN);
     VT_RECV_CHECKED(VT_RETURN);
     vt_unserialize_vkGetPhysicalDeviceFeatures(NULL, pFeatures, inputBuffer, &globalMemoryPool);
 
+    // Forzamos tus características Mali deseadas
     if (pFeatures != NULL) {
-        // =================================================================
-        // 🚀 INYECCIÓN MASIVA DE CARACTERÍSTICAS BASE (TRUE)
-        // =================================================================
         pFeatures->textureCompressionBC = VK_TRUE;
         pFeatures->fillModeNonSolid = VK_TRUE;
         pFeatures->shaderClipDistance = VK_TRUE;
@@ -212,12 +198,11 @@ void vt_call_vkGetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhys
         pFeatures->shaderStorageImageExtendedFormats = VK_TRUE;
         pFeatures->shaderStorageImageWriteWithoutFormat = VK_TRUE;
         pFeatures->independentBlend = VK_TRUE;
-
-        // Desactivada según tu lista
-        pFeatures->variableMultisampleRate = VK_FALSE;
+        pFeatures->variableMultisampleRate = VK_TRUE;
     }
 
     VT_CALL_UNLOCK();
+    // Como la función es void, removemos cualquier return final manual si lo habías puesto
 }
 
 void vt_call_vkGetPhysicalDeviceFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkFormatProperties* pFormatProperties) {
