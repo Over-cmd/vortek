@@ -5,9 +5,8 @@ message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# 🚀 AÑADIMOS -Wno-error Y -Wno-incompatible-pointer-types PARA IGNORAR LOS ERRORES DE POINTERS EN LOS SERIALIZADORES
-set(WARNS "-Wall -Wno-discarded-qualifiers -Wno-error -Wno-incompatible-pointer-types")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 ${WARNS} -DVK_USE_PLATFORM_ANDROID_KHR")
+# 🚀 USAMOS LA BANDERA -w PARA APAGAR LAS ADVERTENCIAS VISUALES Y EVITAR QUE TRABEN EL CIERRE DEL BINARIO
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w -DVK_USE_PLATFORM_ANDROID_KHR")
 
 include_directories(include)
 
@@ -19,4 +18,3 @@ add_library(vulkan_vortek SHARED
             src/arrays.c
             src/descriptor_update_template.c
             src/ring_buffer.c)
-            
