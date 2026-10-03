@@ -266,3 +266,21 @@ static inline int vt_recv(RingBuffer* ring, char** inputBuffer, int* bufferSize,
 
 #endif // Cerramos el endif original de vortek.h de forma limpia primero
 
+// =================================================================
+// 🚀 PARCHE DE COMPATIBILIDAD KHR -> EXT PARA EL NDK r26b
+// =================================================================
+typedef VkVertexInputBindingDivisorDescriptionEXT VkVertexInputBindingDivisorDescriptionKHR;
+typedef VkPipelineVertexInputDivisorStateCreateInfoEXT VkPipelineVertexInputDivisorStateCreateInfoKHR;
+typedef VkPhysicalDeviceVertexInputAttributeDivisorFeaturesEXT VkPhysicalDeviceVertexInputAttributeDivisorFeaturesKHR;
+
+#ifndef VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR
+#define VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_KHR VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_DIVISOR_STATE_CREATE_INFO_EXT
+#endif
+
+#ifndef VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_ATTRIBUTE_DIVISOR_FEATURES_KHR
+#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_ATTRIBUTE_DIVISOR_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VERTEX_INPUT_ATTRIBUTE_DIVISOR_FEATURES_EXT
+#endif
+
+#endif
+
+
