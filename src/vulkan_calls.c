@@ -138,12 +138,43 @@ void vt_call_vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice physicalDevice
 void vt_call_vkGetPhysicalDeviceFeatures(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures* pFeatures) {
     VT_CALL_LOCK();
     VkObject* physicalDeviceObject = VkObject_fromHandle(physicalDevice);
-    
-    VT_SERIALIZE_CMD(VkPhysicalDevice, (VkPhysicalDevice)&physicalDeviceObject->id);
-    VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES);
-    VT_RECV_CHECKED();
-    
-    vt_unserialize_VkPhysicalDeviceFeatures(pFeatures, inputBuffer, &globalMemoryPool);
+
+    VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures, (VkPhysicalDevice)&physicalDeviceObject->id, NULL);
+    VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES, VT_RETURN);
+    VT_RECV_CHECKED(VT_RETURN);
+    vt_unserialize_vkGetPhysicalDeviceFeatures(NULL, pFeatures, inputBuffer, &globalMemoryPool);
+
+    if (pFeatures != NULL) {
+        // =================================================================
+        // 🚀 INYECCIÓN MASIVA DE CARACTERÍSTICAS BASE (TRUE)
+        // =================================================================
+        pFeatures->textureCompressionBC = VK_TRUE;
+        pFeatures->fillModeNonSolid = VK_TRUE;
+        pFeatures->shaderClipDistance = VK_TRUE;
+        pFeatures->shaderCullDistance = VK_TRUE;
+        pFeatures->geometryShader = VK_TRUE;
+        pFeatures->tessellationShader = VK_TRUE;
+        pFeatures->shaderInt16 = VK_TRUE;
+        pFeatures->sampleRateShading = VK_TRUE;
+        pFeatures->imageCubeArray = VK_TRUE;
+        pFeatures->shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+        pFeatures->drawIndirectFirstInstance = VK_TRUE;
+        pFeatures->shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
+        pFeatures->shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
+        pFeatures->multiDrawIndirect = VK_TRUE;
+        pFeatures->sparseBinding = VK_TRUE;
+        pFeatures->shaderResourceMinLod = VK_TRUE;
+        pFeatures->shaderTessellationAndGeometryPointSize = VK_TRUE;
+        pFeatures->textureCompressionASTC_LDR = VK_TRUE;
+        pFeatures->occlusionQueryPrecise = VK_TRUE;
+        pFeatures->shaderStorageImageExtendedFormats = VK_TRUE;
+        pFeatures->shaderStorageImageWriteWithoutFormat = VK_TRUE;
+        pFeatures->independentBlend = VK_TRUE;
+
+        // Desactivada según tu lista
+        pFeatures->variableMultisampleRate = VK_FALSE;
+    }
+
     VT_CALL_UNLOCK();
 }
 
