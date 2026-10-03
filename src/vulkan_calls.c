@@ -2087,12 +2087,15 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
     VkObject* physicalDeviceObject = VkObject_fromHandle(physicalDevice);
 
     VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures2, (VkPhysicalDevice)&physicalDeviceObject->id, NULL);
-    VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2, VT_RETURN);
-    VT_RECV_CHECKED(VT_RETURN);
+    
+    // 🚀 Cambiamos por las macros VOID para que no intente retornar valores
+    VT_SEND_CHECKED_VOID(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2);
+    VT_RECV_CHECKED_VOID();
+    
     vt_unserialize_vkGetPhysicalDeviceFeatures2(NULL, pFeatures, inputBuffer, &globalMemoryPool);
 
     if (pFeatures != NULL) {
-        // Réplica exacta de la inyección masiva en la estructura de características principales
+        // Mantenemos tus inyecciones de características personalizadas intactas abajo
         pFeatures->features.textureCompressionBC = VK_TRUE;
         pFeatures->features.fillModeNonSolid = VK_TRUE;
         pFeatures->features.shaderClipDistance = VK_TRUE;
@@ -2116,7 +2119,7 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         pFeatures->features.shaderStorageImageWriteWithoutFormat = VK_TRUE;
         pFeatures->features.independentBlend = VK_TRUE;
         
-        pFeatures->features.variableMultisampleRate = VK_FALSE;
+        pFeatures->features.variableMultisampleRate = VK_TRUE;
         
         // Iteramos sobre las extensiones dinámicas con casting explícito (void*) para evitar que Clang falle
         void* ext = (void*)pFeatures->pNext;
