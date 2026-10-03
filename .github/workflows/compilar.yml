@@ -16,11 +16,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
-      - name: Configurar Android NDK r26b Oficial
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r26b
-          link-to-sdk: true # Forzar a que sobrescriba el NDK global del runner
+      - name: Eliminar NDK r27 Preinstalado y Forzar r26b
+        run: |
+          # Borramos el NDK 27 del servidor de GitHub para que no interfiera
+          rm -rf /usr/local/lib/android/sdk/ndk/27*
+          
+          # Instalamos el r26b de forma estricta
+          echo "y" | sdkmanager --install "ndk;26.1.10909125"
+          echo "ANDROID_NDK_ROOT=/usr/local/lib/android/sdk/ndk/26.1.10909125" >> $GITHUB_ENV
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
