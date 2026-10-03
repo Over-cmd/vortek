@@ -264,4 +264,19 @@ static inline int vt_recv(RingBuffer* ring, char** inputBuffer, int* bufferSize,
     return requestCode;
 }
 
+#endif // Cerramos el endif original de vortek.h de forma limpia primero
+
+// =================================================================
+// 🚀 PARCHE MAESTRO PARA EL SERIALIZADOR DE VULKAN EN NDK MODERNOS
+// =================================================================
+#ifndef PARCHE_MAP_MEMORY_FIX
+#define PARCHE_MAP_MEMORY_FIX
+
+typedef struct VkPhysicalDeviceMapMemoryPlacedPropertiesEXT {
+    uint32_t sType;
+    void* pNext;
+    uint64_t minPlacedMemoryMapAlignment; // Cambiado a 64-bit para coincidir con VkDeviceSize
+} VkPhysicalDeviceMapMemoryPlacedPropertiesEXT;
+
 #endif
+// =================================================================
