@@ -1974,12 +1974,59 @@ VkBool32 vt_call_vkGetPhysicalDeviceXlibPresentationSupportKHR(VkPhysicalDevice 
 void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhysicalDeviceFeatures2* pFeatures) {
     VT_CALL_LOCK();
     VkObject* physicalDeviceObject = VkObject_fromHandle(physicalDevice);
-    
-    VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures2, (VkPhysicalDevice)&physicalDeviceObject->id, pFeatures);
-    VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES2);
-    VT_RECV_CHECKED();
-    
-    vt_unserialize_VkPhysicalDeviceFeatures2(pFeatures, inputBuffer, &globalMemoryPool);
+
+    VT_SERIALIZE_CMD(vkGetPhysicalDeviceFeatures2, (VkPhysicalDevice)&physicalDeviceObject->id, NULL);
+    VT_SEND_CHECKED(REQUEST_CODE_VK_GET_PHYSICAL_DEVICE_FEATURES_2, VT_RETURN);
+    VT_RECV_CHECKED(VT_RETURN);
+    vt_unserialize_vkGetPhysicalDeviceFeatures2(NULL, pFeatures, inputBuffer, &globalMemoryPool);
+
+    if (pFeatures != NULL) {
+        // Réplica exacta de la inyección masiva en la estructura de características principales
+        pFeatures->features.textureCompressionBC = VK_TRUE;
+        pFeatures->features.fillModeNonSolid = VK_TRUE;
+        pFeatures->features.shaderClipDistance = VK_TRUE;
+        pFeatures->features.shaderCullDistance = VK_TRUE;
+        pFeatures->features.geometryShader = VK_TRUE;
+        pFeatures->features.tessellationShader = VK_TRUE;
+        pFeatures->features.shaderInt16 = VK_TRUE;
+        pFeatures->features.sampleRateShading = VK_TRUE;
+        pFeatures->features.imageCubeArray = VK_TRUE;
+        pFeatures->features.shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+        pFeatures->features.drawIndirectFirstInstance = VK_TRUE;
+        pFeatures->features.shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
+        pFeatures->features.shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
+        pFeatures->features.multiDrawIndirect = VK_TRUE;
+        pFeatures->features.sparseBinding = VK_TRUE;
+        pFeatures->features.shaderResourceMinLod = VK_TRUE;
+        pFeatures->features.shaderTessellationAndGeometryPointSize = VK_TRUE;
+        pFeatures->features.textureCompressionASTC_LDR = VK_TRUE;
+        pFeatures->features.occlusionQueryPrecise = VK_TRUE;
+        pFeatures->features.shaderStorageImageExtendedFormats = VK_TRUE;
+        pFeatures->features.shaderStorageImageWriteWithoutFormat = VK_TRUE;
+        pFeatures->features.independentBlend = VK_TRUE;
+        
+        pFeatures->features.variableMultisampleRate = VK_FALSE;
+        
+        // Iteramos sobre las extensiones dinámicas pNext vinculadas de Vulkan 1.1/1.2/1.3
+        void* ext = pFeatures->pNext;
+        while (ext != NULL) {
+            VkBaseOutStructure* header = (VkBaseOutStructure*)ext;
+            
+            // Forzamos indexación extendida si el juego la solicita vía pNext
+            if (header->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES) {
+                VkPhysicalDeviceDescriptorIndexingFeatures* dif = (VkPhysicalDeviceDescriptorIndexingFeatures*)ext;
+                dif->descriptorBindingPartiallyBound = VK_TRUE;
+                dif->runtimeDescriptorArray = VK_TRUE;
+                dif->shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+            }
+            if (header->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT) {
+                VkPhysicalDeviceColorWriteEnableFeaturesEXT* cw = (VkPhysicalDeviceColorWriteEnableFeaturesEXT*)ext;
+                cw->colorWriteEnable = VK_TRUE;
+            }
+            ext = header->pNext;
+        }
+    }
+
     VT_CALL_UNLOCK();
 }
 
