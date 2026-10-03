@@ -11,18 +11,21 @@ jobs:
       - name: Descargar Código Fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Dependencias y Ninja
+      - name: Instalar Ninja
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build wget unzip
+          sudo apt-get install -y ninja-build
 
-      - name: Descargar e Instalar Android NDK r26b desde Google
+      - name: Eliminar NDK 27 global del sistema
         run: |
-          # Descargamos el paquete oficial de Linux de 64 bits para el NDK r26b
-          wget https://google.com -O ndk.zip
-          unzip -q ndk.zip
-          # Registramos la ruta exacta del NDK descargado en el entorno de GitHub
-          echo "ANDROID_NDK_ROOT=$GITHUB_WORKSPACE/android-ndk-r26b" >> $GITHUB_ENV
+          # Borramos la carpeta del NDK 27 que viene preinstalada en GitHub Actions
+          sudo rm -rf /usr/local/lib/android/sdk/ndk/27*
+
+      - name: Configurar e Instalar NDK r26b Puro de Google
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r26b
+          link-to-sdk: true # Enlaza el r26b como el principal de la máquina virtual
 
       - name: Configurar y Compilar Proyecto con CMake
         run: |
