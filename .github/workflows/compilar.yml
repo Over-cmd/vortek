@@ -11,13 +11,13 @@ jobs:
       - name: Descargar Código Fuente
         uses: actions/checkout@v4
 
-      - name: Instalar Ninja
+      - name: Instalar Ninja (Compilador rápido)
         run: |
           sudo apt-get update
           sudo apt-get install -y ninja-build
 
       - name: Configurar Android NDK Oficial (r26b)
-        uses: nndoki/setup-ndk@v2
+        uses: nttld/setup-ndk@v1
         with:
           ndk-version: r26b
 
