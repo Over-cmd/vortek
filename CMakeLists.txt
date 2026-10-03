@@ -5,8 +5,9 @@ message("Building ${PROJECT_NAME}")
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
-# Configuración de banderas limpia para Android
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w -DVK_USE_PLATFORM_ANDROID_KHR")
+# 🚀 CORRECCIÓN DE VISIBILIDAD: Eliminamos '-fvisibility=hidden' para que Winlator pueda leer el driver
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -w -s -ffunction-sections -fdata-sections -DVK_USE_PLATFORM_ANDROID_KHR")
+set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--gc-sections -Wl,--strip-all")
 
 include_directories(include)
 
@@ -19,5 +20,4 @@ add_library(vulkan_vortek SHARED
             src/descriptor_update_template.c
             src/ring_buffer.c)
 
-# 🚀 LA LÍNEA CRÍTICA: Enlazamos explícitamente la librería gráfica de logs de Android (-llog)
 target_link_libraries(vulkan_vortek log)
