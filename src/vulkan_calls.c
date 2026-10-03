@@ -2108,7 +2108,7 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
         pFeatures->features.shaderInt16 = VK_TRUE;
         pFeatures->features.sampleRateShading = VK_TRUE;
         pFeatures->features.imageCubeArray = VK_TRUE;
-        pFeatures->features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
+        pFeatures->features.shaderSampledImageArrayDynamicIndexing = VK_TRUE; 
         pFeatures->features.drawIndirectFirstInstance = VK_TRUE;
         pFeatures->features.shaderUniformBufferArrayDynamicIndexing = VK_TRUE;
         pFeatures->features.shaderStorageBufferArrayDynamicIndexing = VK_TRUE;
@@ -2134,7 +2134,9 @@ void vt_call_vkGetPhysicalDeviceFeatures2(VkPhysicalDevice physicalDevice, VkPhy
                 VkPhysicalDeviceDescriptorIndexingFeatures* dif = (VkPhysicalDeviceDescriptorIndexingFeatures*)ext;
                 dif->descriptorBindingPartiallyBound = VK_TRUE;
                 dif->runtimeDescriptorArray = VK_TRUE;
-                dif->shaderSampledImageArrayDynamicIndexing = VK_TRUE;
+                dif->shaderSampledImageArrayNonUniformIndexing = VK_TRUE; // 🚀 CAMBIADO AQUÍ
+            }
+
             }
             if (header->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_COLOR_WRITE_ENABLE_FEATURES_EXT) {
                 VkPhysicalDeviceColorWriteEnableFeaturesEXT* cw = (VkPhysicalDeviceColorWriteEnableFeaturesEXT*)ext;
